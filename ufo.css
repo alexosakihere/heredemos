@@ -1006,7 +1006,7 @@
     position: absolute;
     right: .5em;
     top: -.2em;
-    font-family: "Fira Sans";
+    font-family: FiraSansBook;
     color: var(--heremidgrey);
 }
 
@@ -1045,7 +1045,7 @@
     width: 60%;
     font-weight: bold;
     font-size: 16pt;
-    font-family: "Fira Sans";
+    font-family: FiraSansBook;
 }
 .phone_job_details_recipient span {
     display: block;
@@ -1203,7 +1203,7 @@ END PHONE CSS STYLES
 .ufo_large_panel_title {
     font-size: 18pt;
     font-weight: bold;
-    font-family: "Fira Sans";
+    font-family: FiraSansBook;
     position: absolute;
     left: 40px;
     top: 20px;
@@ -1236,7 +1236,7 @@ END PHONE CSS STYLES
     position: absolute;
     left: 20px;
     top:160px;
-    font-family: "Fira Sans";
+    font-family: FiraSansBook;
     font-weight: bold;
     font-size: 1em;
 }
@@ -1245,7 +1245,7 @@ END PHONE CSS STYLES
     position: absolute;
     left: 20px;
     top: 14px;
-    font-family: "Fira Sans";
+    font-family: FiraSansBook;
     color: var(--heremidgrey);
     font-size: 8pt;
     font-style: italic;
@@ -1267,14 +1267,14 @@ END PHONE CSS STYLES
     margin-bottom: 5px;
     border-radius: 9px;
     color: var(--herewhite);
-    font-family: "Fira Sans";
+    font-family: FiraSansBook;
     font-size: 10pt;
     height: 22px;
     line-height: 22px;
 }
 
 .ufo_large_panel_card_summary {
-    font-family: "Fira Sans";
+    font-family: FiraSansBook;
     font-weight: 100;
     color: var(--heremidgrey);
     font-size: 10pt;

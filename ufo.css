@@ -1,0 +1,1075 @@
+.ufo_bullet {
+	display: block;
+	background-color: var(--herewhite);
+	border-radius: 16px;
+	margin-left: auto;
+	margin-right: auto;
+	width: calc(50% - 1px);
+	height: calc(50% - 1px);
+	margin-top: 25%;
+}
+
+.ufo_orders {
+    position: absolute;
+    left: 64px;
+    top: 15px;
+    width: 320px;
+    height: calc(100% - 30px);
+    background-color: var(--herewhite);
+    z-index: 100;
+    display: none;
+    overflow-x: hidden;
+}
+
+.ufo_pane_header {
+    margin-left: 20px;
+    margin-right: 20px;
+    height: 100px;
+}
+
+.ufo_pane_title {
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.ufo_pane_title img {
+    display: block;
+    width: 25px;
+    height: 25px;
+}
+
+.ufo_pane_title span {
+    display: block;
+    position: absolute;
+    float: left;
+    left: 54px;
+    top: 30px;
+    font-size: 14pt;
+    font-weight: bold;
+    font-family: "FiraSansBook";
+}
+
+.ufo_pane_spacer {
+    display: block;
+    height: 5px;
+}
+
+.ufo_stop_list {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: calc(100% - 242px);
+}
+
+.ufo_pane_midbar {
+    position: relative;
+    background-color: var(--hereufogrey);
+    color: var(--heremidgrey);
+    height: 82px;
+    /*line-height: 42px;*/
+    /*width: 100%;*/
+    margin-top: 25px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 5px;
+    /*text-transform: uppercase;*/
+    font-size: 10pt;
+}
+
+.ufo_small_card_div {
+    background-color: var(--herewhite);
+    position:relative;
+    width: 100%;
+    min-width: 300px;
+    height: 56px;
+    border-bottom: 2px solid var(--hereufomidgrey);
+    padding-top: 10px;
+    overflow-y: visible;
+    overflow-x: visible;
+}
+
+.ufo_small_card_icon {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 16px;
+    top: 20px;
+}
+
+.ufo_small_title {
+    font-weight: bold;
+    position: absolute;
+    left: 50px;
+    font-size: 10pt;
+    top:12px;
+}
+
+.ufo_small_details {
+    position: absolute;
+    left: 50px;
+    top: 32px;
+    font-size: 9pt;
+    color: var(--herelightgrey);
+}
+
+.ufo_small_status {
+    position: absolute;
+    font-size: 9pt;
+    color: var(--herelightgrey);
+    top: 32px;
+    right: 20px;
+}
+
+.ufo_order_action {
+    width: 42px;
+    height: 42px;
+    float: right;
+    margin-right: 25px;
+}
+
+.ufo_sidebar {
+    position: absolute;
+    background-color: var(--herewhite);
+    left:0px;
+    top:0px;
+    padding-top:100px;
+    width: 40px;
+    height: 100%;
+    z-index: 100;
+}
+.ufo_sidebar_icon_border_selected {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(to top,#48DAd0,#A4C3FF);
+    position:relative;
+}
+.ufo_sidebar_icon_border_unselected {
+    width: 40px;
+    height: 40px;
+    background: var(--herewhite);
+    position:relative;
+}
+.ufo_sidebar_icon {
+    width:36px;
+    height:40px;
+    position:absolute;
+    left: 4px;
+    background: var(--herewhite);
+}
+.ufo_smallpane_icon {
+    width: 25px;
+    height: 25px;
+}
+
+.ufo_dropdown {
+    font-family: FiraSansBook;
+    width: 100%;
+    border: 1px solid var(--herelightergrey);
+    height: 25px;
+    overflow: show;
+    position: relative;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.ufo_dropdown_container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    overflow: hidden;
+    background-color: var(--herewhite);
+}
+
+.ufo_dropdown_el {
+    margin: 0px;
+    border: 0px;
+    height:25px;
+    width: 100%;
+    line-height: 25px;
+    font-size: 10pt;
+    padding-left: 20px;
+}
+
+.ufo_dropdown_icon {
+    position:absolute;
+    right:5px;
+    width: 12px;
+    height: 12px;
+    top:2px;
+    transform: rotate(0deg);
+    transform-origin: 50% 80%;
+}
+
+.ufo_action_button {
+    width:120px;
+    height: 30px;
+    border-radius: 15px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 10pt;
+    background: linear-gradient(to left,#48DAd0,#A4C3FF);
+}
+
+/* Option panel sits above the other panels in the middle of the screen */
+
+.ufo_option_panel {
+    position: fixed;
+    display: none;
+    width: 60%;
+    height: 60%;
+    max-height: 600px;
+    left: 20%;
+    right: 20%;
+    background-color: var(--herewhite);
+    z-index: 100;
+}
+
+.ufo_option_panel_header {
+    background-color: var(--herecornflower);
+    font-family: FiraSansBook;
+    color: var(--heremidgrey);
+    height: 40px;
+    line-height: 40px;
+    padding-left: 20px;
+    font-weight: 900;
+    font-size: 14pt;
+}
+
+.ufo_option_panel_contents {
+    padding-left:20px;
+    padding-top:15px;
+}
+
+.ufo_option_panel_selector_container {
+    position: relative;
+    display: inline-block;
+    width: max-content;
+}
+.ufo_option_panel_selector_container #text {
+    display: block;
+    position: relative;
+    font-weight: 700;
+    font-family: FiraSansBook;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.ufo_option_panel_selector_container #lower {
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 24px;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(to left,#48DAd0,#A4C3FF);
+}
+
+.ufo_sequence_label {
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 2px;
+    color: var(--herewhite);
+    width: 100%;
+    font-weight: 800;
+    font-size: 10pt;
+    text-align: center;
+}
+
+.ufo_option_panel_body {
+    background-color: var(--hereufogrey);
+    font-family: FiraSansBook;
+    position: absolute;
+    left: 15px;
+    right: 15px;
+    top: 110px;
+    padding: 15px;
+    padding-left: 30px;
+    font-size: 10pt;
+    color: var(--heremidgrey);
+}
+.ufo_option_panel_body .ufo_radio {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.ufo_radio {
+    position: relative;
+    height: 22px;
+}
+
+.ufo_radio_button {
+    position: absolute;
+    margin-right: 10px;
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--herelightergrey);
+    background-color: var(--herewhite);
+}
+
+.ufo_radio_label {
+    position: absolute;
+    display: block;
+    left: 32px;
+    font-family: FiraSansLight;
+    font-weight: 100;
+    font-size: 9pt;
+}
+
+.ufo_small_card_div:hover {
+    background-color: var(--hereufogrey);
+}
+
+.ufo_small_card_div:hover .ufo_infobubble {
+    display:block;
+}
+
+.ufo_infobubble {
+    display: none;
+    position: absolute;
+    top:20px;
+    left: 220px;
+    width: 20px;
+    height: 20px;
+    border-radius:50%;
+    border:1px solid var(--herewhite);
+}
+.ufo_infobubble:hover {
+    border:1px solid var(--herebluegreen);
+}
+
+.ufo_debug_panel {
+    position: absolute;
+    right: 15px;
+    bottom: 85px;
+    width: 20%;
+    height: 10%;
+    z-index: 200;
+    background-color: var(--heredarkgrey);
+    color: var(--herebluegreen);
+    padding: 10px;
+    border-radius:5px;
+    font-size: 10pt;
+    overflow-y: scroll;
+}
+
+.ufo_time_control {
+    position:absolute;
+    bottom: 15px;
+    right: 15px;
+    height: 80px;
+    left: 60px;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin: 0px;
+    background-color: var(--herewhite);
+    overflow-x: hidden;
+}
+.ufo_time_startdate {
+    position: absolute;
+    left: 35px;
+    font-weight: 600;
+    font-size: 8pt;
+    top: 14px;
+    font-family: FiraSansBook;
+}
+.ufo_time_tick {
+    color: var(--heredarkgrey);
+    width: 19%;
+    position: absolute;
+    top: 22px;
+    text-align: center;
+    font-size: 7pt;
+    display: inline-block;
+    margin-right:0px;
+    z-index: 150;
+}
+.ufo_time_box {
+    border: 1px solid var(--heredarkgrey);
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    bottom: 5px;
+    top: 30px;
+}
+.ufo_time_selector {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    z-index: 500;
+}
+.ufo_time_morning {
+    position: absolute;
+    display: block;
+    background-color: var(--hereufogrey);
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    width: 31.25%;
+    border-right: 1px solid var(--heremidgrey);
+}
+.ufo_time_evening {
+    position: absolute;
+    display: block;
+    background-color: var(--hereufogrey);
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    width: 31.25%;
+    border-left: 1px solid var(--heremidgrey);
+}
+.ufo_current_time {
+    left: 30%;
+    top: 0px;
+    bottom: 0px;
+    width: 1px;
+    background-color: var(--herebluegreen);
+    display: block;
+    position: absolute;
+}
+
+.here_logo {
+    bottom: 110px;
+    right: 20px;
+}
+
+.ufo_list_container {
+    height: 18px;
+    line-height: 18px;
+    position: relative;
+    margin-top:12px;
+    margin-bottom:10px;
+    font-family: FiraSansLight;
+    font-size: 9pt;
+    font-weight: 100;
+}
+.ufo_list_check_checked {
+    border: 1px solid var(--herebluegreen);
+    background-color: var(--herebluegreen);
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    margin-right: 10px;
+    top: 1px;
+    position: absolute;
+}
+.ufo_list_check_unchecked {
+    border: 1px solid var(--herelightgrey);
+    background-color: var(--herewhite);
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    margin-right: 10px;
+    top: 1px;
+    position: absolute;
+}
+.ufo_list_text {
+    display: inline-block;
+    position: absolute;
+    left: 36px;
+}
+
+.ufo_panel_breadcrumb {
+    display: block;
+    position: absolute;
+    top: 10px;
+    left:44px;
+    font-family: FiraSansLight;
+    font-weight:100;
+    font-size: 9pt;
+
+}
+.ufo_panel_breadcrumb span {
+    color: var(--herebluegreen);
+}
+
+.ufo_breadcrumb_back {
+    display: block;
+    position: absolute;
+    top: -1px;
+    left: -20px;
+    background: url("./images/icon_arrow_left.png");
+    background-size: 200%;
+    width:16px;
+    height:16px;
+    background-position: 50%;
+}
+
+.ufo_flag {
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--herewhite);
+    display: block;
+    font-size: 8pt;
+    color: var(--herewhite);
+    font-weight: bold;
+    text-align: center;
+    line-height: 12px;
+    position: absolute;
+    left: 5px;
+    top: -9px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color:var(--herered);
+    z-index:200;
+}
+.ufo_flag_r {
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--herewhite);
+    display: block;
+    font-size: 8pt;
+    color: var(--herewhite);
+    font-weight: bold;
+    text-align: center;
+    line-height: 12px;
+    position: absolute;
+    left: 5px;
+    top: -9px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color:var(--hereufoblue);
+    z-index:200;
+}
+.ufo_flag_d {
+    border-width: 0px;
+    border-style: solid;
+    border-color: var(--herewhite);
+    display: block;
+    font-size: 8pt;
+    color: var(--herewhite);
+    font-weight: bold;
+    text-align: center;
+    line-height: 12px;
+    position: absolute;
+    right: 4px;
+    top: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color:var(--heregreen);
+    z-index:200;
+}
+.ufo_flag_e {
+    border-width: 0px;
+    border-style: solid;
+    border-color: var(--herewhite);
+    display: block;
+    font-size: 8pt;
+    color: var(--herewhite);
+    font-weight: bold;
+    text-align: center;
+    line-height: 12px;
+    position: absolute;
+    right: 4px;
+    top: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color:var(--herered);
+    z-index:200;
+}
+
+.ufo_stop_infopanel {
+    display: block;
+    position: absolute;
+    width: max-content;
+    background-color: var(--herewhite);
+    left: 30px;
+    top: -20px;
+    color: var(--heremidgrey);
+    overflow: hidden;
+    padding-left: 5px;
+    text-align: left;
+    border: 1px solid var(--herelightergrey);
+    border-radius: 3px;
+    line-height: 10pt;
+    font-size: 10pt;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 8px;
+}
+.ufo_stop_infopanel #name {
+    font-weight: bold;
+    font-size: 11pt;
+    margin-bottom: 5px;
+}
+.ufo_stop_infopanel #addr1 {
+    font-weight: 100;
+    color: var(--herelightgrey);
+}
+.ufo_stop_infopanel #addr2 {
+    font-weight: 100;
+    color: var(--herelightgrey);
+}
+.ufo_stop_infopanel #times {
+    margin-top: 9px;
+    margin-bottom: 2px;
+    font-weight: 100;
+    color: var(--heremidgrey);
+    font-size: 8pt;
+}
+.ufo_stop_infopanel #notes {
+    margin-top: 9px;
+    margin-bottom: 2px;
+    font-weight: 100;
+    color: var(--heremidgrey);
+    font-size: 8pt;
+}
+.ufo_stop_infopanel .hour_unavailable {
+    display: inline-block;
+    margin: 0px;
+    width: 9px;
+    height: 8px;
+    background-color: var(--hereufogrey);
+    border-top: 1px solid var(--heremidgrey);
+    border-bottom: 1px solid var(--heremidgrey);
+}
+.ufo_stop_infopanel .hour_available {
+    display: inline-block;
+    margin: 0px;
+    width: 9px;
+    height: 8px;
+    background-color: var(--hereufoblue);
+    border-top: 1px solid var(--heremidgrey);
+    border-bottom: 1px solid var(--heremidgrey);
+}
+.ufo_stop_infopanel .hour_blocked {
+    display: inline-block;
+    margin: 0px;
+    width: 9px;
+    height: 8px;
+    background-color: var(--hereufolightblue);
+    border-top: 1px solid var(--heremidgrey);
+    border-bottom: 1px solid var(--heremidgrey);
+}
+.ufo_stop_infopanel_notes {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: var(--hereufogrey);
+    padding: 5px;
+    font-size: 8pt;
+    font-style: italic;
+}
+
+.ufo_driver_dropdown_container {
+    display: block;
+    width: 250px;
+    position: absolute;
+    border: 1px solid var(--heremidgrey);
+    background-color: var(--herewhite);
+    border-radius:2px;
+    z-index: 100;
+}
+
+.ufo_driver_dropdown_el {
+    display: block;
+    height: 30px;
+    background-color: var(--herewhite);
+    position: relative;
+    z-index: 100;
+    font-weight: 100;
+    font-size: 9pt;
+    line-height: 30px;
+    padding-left: 20px;
+}
+
+.ufo_driver_dropdown_header {
+    display: block;
+    width: 100%;
+    height: 18px;
+    position: relative;
+    z-index: 50;
+    font-weight: 900;
+    font-size: 10pt;
+    line-height: 18px;
+    margin-left: -6px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+.ufo_driver_dropdown_block {
+    background-color: var(--herewhite);
+    width: 100%;
+    margin-top: 10px;
+    color: var(--heremidgrey);
+    border-bottom: 1px solid var(--hereufomidgrey);
+}
+.ufo_driver_dropdown_block span {
+    margin-left: 10px;
+    text-transform: uppercase;
+}
+
+.ufo_driver_dropdown_caret {
+    transform-origin: 50% 60% 0px;
+    position: relative;
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    top: 1px;
+    left: 5px;
+}
+
+.ufo_driver_dropdown_search {
+    border: 1px solid var(--hereufomidgrey);
+    height: 30px;
+    margin-left: 10px;
+    margin-top: 6px;
+    margin-right: 10px;
+}
+
+.ufo_phone {
+    display: none;
+    position: absolute;
+    right: 20px;
+    bottom: 120px;
+    z-index: 150;
+    width: 320px;
+    height: 640px;
+}
+
+.ufo_phone_innerframe {
+    background-color: var(--hereufolightblue);
+    border: 2px solid var(--hereufoblue);
+    border-radius: 15px;
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+
+.ufo_phone_display {
+    border: 1px solid var(--heremidgrey);
+    display: block;
+    background-color: var(--herewhite);
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: 50px;
+    bottom: 15px;
+    z-index: 250;
+    overflow:hidden;
+}
+
+.cluster_container {
+	position: absolute;
+	float: left;
+	top: 50px;
+	left: 50px;
+	width: auto;
+	height: 36px;
+	transform: translate(0px,0px) scale(1.0);
+	overflow: visible;
+}
+
+.ufo_small_card_icon span {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-weight: bold;
+    font-size: 8pt;
+    text-align: center;
+}
+
+.ufo_midbar_data_block {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    color: var(--heremidgrey);
+    font-size: 12pt;
+    font-weight: 700;
+}
+.ufo_midbar_data_block_caption {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    color: var(--herelightgrey);
+    font-size: 10pt;
+    font-weight: 100;
+}
+
+.ufo_option_panel_textbox {
+    display: inline-block;
+    border: 1px solid var(--herelightergrey);
+    font-style: italic;
+    color: var(--herelightgrey);
+    padding: 5px 15px 5px 15px;
+}
+
+.ufo_option_panel_subhead {
+    font-weight: bold;
+    font-size: 12pt;
+    margin-top: 15px;
+}
+
+.ufo_option_panel_box {
+    display: inline-block;
+}
+
+.ufo_phone_toast {
+    color: var(--herewhite);
+    display: block;
+    z-index: 200;
+    position: absolute;
+    top: -35px;
+    left: 2.5%;
+    right: 2.5%;
+    padding: 5px;
+    font-size: 10pt;
+}
+
+.shade {
+    display: none;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	transform: translate3d(0vw,0vw,0vw);
+    /*min-width: 1400px;*/
+    background-color:var(--heredarkestgrey);
+    opacity: .0;
+    z-index: 200;
+}
+
+.ufo_phone_pos_marker {
+    display: block;
+    position: absolute;
+    left: calc(50% - 27px);
+    top: calc(50% - 27px);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 4px solid rgba(130,219,189,.4);
+    background-color: var(--herewhite);
+    z-index:250;
+}
+.ufo_phone_pos_core {
+    display: block;
+    position: absolute;
+    width:14px;
+    height: 14px;
+    border: 1px solid var(--heregreen);
+    background-color: var(--herepalegreen);
+    border-radius: 50%;
+    left: 4px;
+    top: 4px;
+}
+
+.ufo_phone_next_stop_bar {
+    display: block;
+    position: absolute;
+    z-index: 210;
+    left: 4%;
+    right: 4%;
+    height: 40px;
+    background-color: var(--hereufomidblue);
+    border-radius: 12px;
+    bottom: 150px;
+}
+
+.ufo_phone_next_stop {
+    display: block;
+    position: absolute;
+    z-index: 210;
+    left: 4%;
+    right: 4%;
+    height: 440px;
+    bottom: -300px;
+    border-radius: 12px;
+    background-color: var(--herewhite);
+}
+
+.ufo_phone_route_canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index:199;
+}
+
+.ufo_phone_stop_next {
+    display: block;
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    z-index: 200;
+}
+.ufo_phone_stop_next span {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 60px;
+    height: 60px;
+    line-height: 50px;
+    text-align: center;
+    color: var(--herewhite);
+    font-weight: bold;
+    z-index: 201;
+    font-size: 18pt;
+}
+
+.ufo_phone_stop {
+    display: block;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    z-index: 200;
+}
+.ufo_phone_stop span {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 40px;
+    height: 40px;
+    line-height: 36px;
+    text-align: center;
+    color: var(--herewhite);
+    font-weight: bold;
+    z-index: 201;
+    font-size: 10pt;
+}
+
+.ufo_phone_bar_left #phone_bar_icon {
+    display: inline-block;
+    position: absolute;
+    left: 60px;
+    top: 8px;
+    width: 26px;
+    height: 26px;
+    color: var(--herewhite);
+}
+
+.ufo_phone_bar_left #phone_bar_label {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    position: absolute;
+    left: 22px;
+    top:7px;
+    color: var(--herewhite);
+    font-size: 18pt;
+    font-weight: bold;
+}
+
+.phone_drawer_addr {
+    font-weight: bold;
+    font-size: 14pt;
+    padding-left: 14px;
+    padding-top: 14px;
+}
+
+.phone_drawer_recip {
+    padding-left: 14px;
+    padding-top: 8px;
+    color: var(--heremidgrey);
+    font-size: 12pt;
+}
+
+.ufo_large_panel {
+    position: absolute;
+    display: block;
+    background-color: var(--hereufogrey);
+    left: 32px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    z-index: 500;
+    padding-left: 140px;
+    padding-right: 50px;
+    padding-top: 140px;
+}
+
+.ufo_large_panel_title {
+    font-size: 18pt;
+    font-weight: bold;
+    font-family: "Fira Sans";
+    position: absolute;
+    left: 40px;
+    top: 20px;
+}
+
+.ufo_large_panel_card {
+    display: inline-block;
+    margin: 10px;
+    width: 240px;
+    height: 320px;
+    background-color: var(--herewhite);
+    border: 2px solid var(--hereufogrey);
+    box-shadow: 1px 2px 2px 0px var(--hereufomidgrey);
+    position: relative;
+}
+
+.ufo_large_panel_card_icon {
+    position: absolute;
+    left: calc(50% - 48px);
+    top: 40px;
+    display: block;
+    border: 3px solid var(--herelightergrey);
+    width: 50px;
+    height: 50px;
+    padding: 20px;
+    border-radius: 50%;
+}
+
+.ufo_large_panel_card_subhead {
+    position: absolute;
+    left: 20px;
+    top:160px;
+    font-family: "Fira Sans";
+    font-weight: bold;
+    font-size: 12pt;
+}
+
+.ufo_large_panel_card_note {
+    position: absolute;
+    left: 20px;
+    top: 14px;
+    font-family: "Fira Sans";
+    color: var(--heremidgrey);
+    font-size: 8pt;
+    font-style: italic;
+}
+
+.ufo_large_panel_card_details {
+    position: absolute;
+    left: 20px;
+    top: 190px;
+}
+
+.ufo_large_panel_card_badge {
+    display: inline-block;
+    background-color: red;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-right: 5px;
+    border-radius: 9px;
+    color: var(--herewhite);
+    font-family: "Fira Sans";
+    font-size: 10pt;
+    height: 22px;
+    line-height: 22px;
+}
+
+.ufo_large_panel_card_summary {
+    font-family: "Fira Sans";
+    font-weight: 100;
+    color: var(--heremidgrey);
+    font-size: 10pt;
+    display: block;
+    width: 90%;
+    margin-top: 8px;
+    font-style: italic;
+}

@@ -1,0 +1,396 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width minimum-scale=1.0 maximum-scale=1.0 initial-scale=1.0">
+<title>HERE IoT Demo</title>
+	<script src="./scripts/core.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="./ignite.css" />
+	<link rel="stylesheet" type="text/css" href="./ufo.css" />
+	<link rel="stylesheet" type="text/css" href="./jquery-ui.css" />
+	<script type="Text/JavaScript">
+		var time = 1;
+		var map_zlevel = 13;
+		var map_tile_offset_x = 0;
+		var map_tile_offset_y = 0;
+		var nxoff = 1024;
+		var nyoff = 512;
+		var gmheight = 4;
+		var gmwidth = 6;
+		var top_left = [41.46471,1.97075];
+		var center = [36.15347084350586, -115.17028930288463];
+		var container_height = 800;
+		var container_width = 1200;
+		var sidebar_width = 400;
+		var sidebar_height = 800;
+		var side_menu_width = 82;
+		var normalized_origin = [];
+		var active_tracker = "";
+		var active_story = "";
+		var sidebar_active = true;
+		var map_options_visible = false;
+		var current_map_context = "delay";
+		var contexts = ["delay","battery"];
+		var mouse_x,mouse_y;
+		var lock_movement=false;
+		var o_horz,o_vert,t_horz,t_vert;
+		var start_date = false;
+		var canon_date = new Date();
+		var geofence_origins = {};
+		var tracker_origins = {};
+		var tdiff = 0;
+		var limit_to_group = ""; //used to track only a subset of trackers
+		var pos_sources = ["GNSS","WLAN/Cell","WLAN","BLE","UWB"];
+		//var use_trackers = ["watch1","watch2","watch3","watch4","watch5","watch6","watch7","watch8","watch9"];
+		var use_trackers = [];
+		var camera_follow = false; //can be set and will always lock the camera to the tracker's position
+		var last_err;	
+		var bad_tiles = [];
+		var animation;
+		var story_text = "";
+		var indicator_on;
+		var indicator_data = [];
+		var autoplay = 0;
+		var autoplay_counter = 0;
+		var timer = 0;
+		var markingup = ""; //buffer for caption text
+		var mapstyle = "reduced";
+		var new_map = "";
+		var map_needs_redraw = false;
+		var map_tiles_remaining = -1;
+		var map_needs_firstdraw = true;
+		var expanded_summary = false;
+		var scripts_remaining = 0;
+		var jsscripts = ["./scripts/trackerlogic.js","./scripts/jquery-3.2.1.min.js","./scripts/velocity.min.js","./scripts/velocity.ui.js","./scripts/alive.js","./scripts/alive_charts.js","./scripts/lastmile.js","./scripts/lastmile_debug.js","./scripts/lastmiledata.js","./scripts/lastmile_paths.js","./scripts/jquery-ui.min.js","./scripts/jquery.ui.touch-punch.js"];
+		//var jsscripts = ["./scripts/data.js","./scripts/trackerdata.js","./scripts/trackerlogic.js","./scripts/stories.js","./scripts/storylogic.js","./scripts/jquery-3.2.1.min.js","./scripts/proj4.js","./scripts/velocity.min.js","./scripts/velocity.ui.js","./scripts/Chart.js","./scripts/jquery-ui.min.js"];
+		var graph_active = false;
+		var stages_active = false;
+		var blocking_map = false; //set true when the map is being redrawn to prevent cascading map draws
+		var show_map_errors = false;
+		var tcx,tcv; //trace context and canvas
+		var trace_points = [];
+		var calls = 0;
+		var trace_params = []; //set from the tracker ID and map offsets when a trace is drawn and used to compute if the trace has to be REdrawn
+		var sidebar_id = "";
+		var graph_width = 435;
+		var tracker_steps = {}; //used to record the appropriate step index for every tracker
+		var alive_last_called_time; //Used to determine whether or not a data block needs to be rebuilt. String, mode+time+duration
+		var alive_duration = 10; // In days
+		var alive_realtime = true;
+		var alive_data_mode; // journeys, routes, vehicle, etc
+		var alive_display_mode; // list, data, map
+		var alive_chart_counter = 0;
+		var touchpoints = {};
+		var touchpoint_move = false;
+		
+		var alive_p_start = false; //provisional start for the time widget
+		var alive_p_end = false;
+		var alive_days_ago = 0;
+		var alive_search_term = "";
+		var alive_active_gate;
+		var alive_active_route;
+		var alive_active_journeys;
+		var alive_active_asset;
+		var alive_active_asset_center;
+		var alive_data_needs_refresh = true;
+		var alive_blocking_map = false;
+
+		var alive_metadata = {};
+		var alive_metadata_assoc = {};
+		
+		var alive_history = [];
+		var alive_chart_legends = {}; // used to store values for every alive graph chart data
+		var alive_chart_mode = "delay";
+		var port_of_departure = "Houston";
+
+		var blocking_queue = false; // Whether or not a function is currently being performed.
+		var queuelist = []; // Queued up functions to perform
+
+		var fleet = true; // This is true so delivery stops will be drawn in the anim loop.
+		var anim_queue = new Set(); // This is a list of ufo_path anims to be iterated in the anim loop
+		var fleetpaths = []; // This is a list of paths that will be redrawn when the map is zoomed
+		var canon_paths = []; // These are paths that will ALWAYS be drawn.
+		var fleetmode = ""; // This is the display mode (i.e. "plan", "tours")
+
+		var mtiles = []; // Test to see if I can smooth out the redraw problem.
+
+		var map_last_call = ""; // This is the last reason the map was redrawn, and is always unset from the map_finish() function
+
+		var ufo_option_panel_mode = "optimization"; // Which tab is active in the UFO option panel
+		var ufo_midnight = 0; // unixtime value of midnight for the given day
+		var fleet_solutions_calculated = false;
+		var fleet_solutions_dispatched = false;
+		var fleet_jobs_imported = false;
+		var fleet_needs_redraw = false;
+		var ufo_debug = false;
+
+		var ufo_minstep = 0;
+		var ufo_remaining_steps = 0;
+
+		var ufo_phone_visible;
+		var start_time;
+
+		var temp_link_map = [];
+		var temp_last_node = -1;
+		var madjy = 300;
+		var madjx = 512;
+		var ufo_opts = {
+			optimization:{
+				current:0,
+				opts:["fewest","balanced","fastest"],
+				strings:["Optimized for fewest number of vehicles","Balance automatically (distribute between drivers)","Fastest (distribute to all drivers)"]
+			}
+		};
+
+		var msmap = {
+			"type":"container",
+			"type_plural":"containers",
+			"class":"product",
+			"class_plural":"products",
+			"uid":"uid",
+			"gen":"container",
+			"gen_plural":"containers",
+			"ship_type":"container ship"
+		}
+		var predefs = {
+			0:{
+				"position":[40.536394,-73.93538],
+				"zoom":9,
+				"time":1527176789,
+				"context":"delay",
+				"thing":"pharma4"
+			},
+			1:{
+				"position":[39.18618,-76.46671],
+				"zoom":10,
+				"time":1526991389,
+				"context":"delay",
+				"thing":"car2"
+			},
+			2:{
+				"position":[39.24363,-76.532346],
+				"zoom":15,
+				"time":1527070589,
+				"context":"delay",
+				"thing":"car4"
+			},
+			3:{
+				"position":[3.9657, -64.5676],
+				"zoom":3,
+				"time":1546732800,
+				"context":"logistics",
+				"thing":""
+			}
+		}
+	</script>
+</head>
+
+<body onload="setup()">
+	<div class="loading_screen" id="loading_screen"></div>
+	<div class="body_container">
+	<div class="topbar">
+		<div id="selected">Dashboard</div>
+		<div>Workspace</div>
+		<div>Device management</div>
+	</div>
+	<!--
+	<div class="side_menu" id="side_menu">
+		<div class="side_menu_icon" id="side_back"></div>
+		<div class="side_menu_icon" id="side_map" onclick="map_data_context_switch({'mode':'map','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" style="display: none;" id="side_devices" onclick="map_data_context_switch({'mode':'devices','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" style="display: none;" id="side_geofences"></div>
+		<div class="side_menu_icon" style="display: none;" id="side_scenarios" onclick="map_data_context_switch({'mode':'scenarios','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" style="display: none;" id="side_routes" onclick="map_data_context_switch({'mode':'routes','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" style="display: none;" id="side_checkpoints" onclick="map_data_context_switch({'mode':'checkpoints','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="predef1" onclick="trigger_predef({'index':0,'caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="predef2" onclick="trigger_predef({'index':1,'caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="predef3" onclick="trigger_predef({'index':2,'caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="predef4" onclick="trigger_predef({'index':3,'caller':'side_menu'})"></div>
+	</div>
+	-->
+	<div class="ufo_sidebar" id="ufo_sidebar">
+		<div class="ufo_sidebar_icon_border_unselected" id="ufo_icon_plan_border">
+			<div class="ufo_sidebar_icon" id="ufo_icon_plan" onclick="ufo_mode_switch('plan')">
+				<svg x="0px" y="0px" viewBox="0 0 48 48">
+					<g id="icon_calendar_svg" transform="rotate(90,24,24)" class="sidebar_icon_svg">
+						<path style="fill:#3f59a7;fill-opacity:1;stroke:none;stroke-width:0.09999999;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none" d="m 11.543637,32.096138 h 3.265015 v 3.671045 h 18.717627 c 0.898078,0 1.620764,-0.722688 1.620764,-1.620764 V 13.542936 c 0,-0.898077 -0.722686,-1.620762 -1.620764,-1.620762 H 14.808652 v 3.667688 h -3.265015 v 2.979787 h 3.265015 v 10.546702 h -3.265015 z m 6.489762,0.372474 v -3.754935 h 3.88916 v 3.754935 z m 0,-6.681032 v -3.758291 h 3.88916 v 3.758291 z m 0,-6.640764 v -3.75829 h 3.88916 v 3.75829 z m 6.640766,13.321796 v -3.754935 h 3.885802 v 3.754935 z m 0,-6.681032 v -3.758291 h 3.885802 v 3.758291 z" id="rect909" inkscape:connector-curvature="0" /></g>
+				</svg>
+			</div>
+		</div>
+		<div class="ufo_sidebar_icon_border_unselected" id="ufo_icon_phone_border" style="margin-top:12px;">
+			<div class="ufo_sidebar_icon" id="ufo_icon_phone" onclick="ufo_mode_switch('phone')">
+				<svg x="12px" y="0px" viewBox="-7 -12 64 64">
+					<g id="icon_phone_svg" class="sidebar_icon_svg">
+							<path style="fill:#3f59a7;fill-opacity:1;stroke:none;" d="M33.0001,1h-18c-2.76,0-5,2.24-5,5v36c0,2.76,2.24,5,5,5h18c2.76,0,5-2.24,5-5V6 C38.0001,3.24,35.7601,1,33.0001,1z M24.0001,44c-1.65,0-3-1.35-3-3s1.35-3,3-3s3,1.35,3,3S25.65,44,24.0001,44z M34.0001,36h-20V7 h20V36z"/>
+					</g>
+				</svg>
+			</div>
+		</div>
+		<div class="ufo_sidebar_icon_border_unselected" id="ufo_icon_vehicles_border" style="margin-top:12px;">
+				<div class="ufo_sidebar_icon" id="ufo_icon_vehicles" onclick="ufo_mode_switch('vehicles')">
+					
+					<svg
+						xmlns:svg="http://www.w3.org/2000/svg"
+						xmlns="http://www.w3.org/2000/svg"
+						x="0px"
+						y="0px"
+						viewBox="-1 -3 14 14"
+						enable-background="new 0 0 14 14"><g id="icon_vehicles_svg" class="sidebar_icon_svg"><path
+						  id="path899"
+						  style="fill:#3f59a7;fill-opacity:1;stroke:none;stroke-width:0.09999999;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none"
+						  d="m 6.5758645,3.9831212 c -0.1791809,0 -0.322574,0.1433931 -0.322574,0.3225739 v 4.6067045 c 0,0.4180884 0.3351652,0.7549974 0.7532537,0.7549974 H 7.7510797 V 8.9821453 H 9.9288895 V 9.667397 h 0.7445365 c 0.418088,0 0.753253,-0.336909 0.753253,-0.7549974 V 4.3056951 c 0,-0.1791808 -0.143392,-0.322574 -0.322574,-0.3225739 z M 7.1843958,4.720682 h 3.3233832 c 0.0978,0 0.176109,0.078305 0.176109,0.176108 V 6.8392082 H 7.0082879 V 4.89679 c 0,-0.097803 0.078304,-0.176108 0.1761079,-0.176108 z M 7.0082879,7.5453836 H 8.0998083 V 8.2358662 H 7.0082879 Z m 2.584079,0 H 10.682144 V 8.2358662 H 9.5923669 Z M 1.0228621,2.1856175 c -0.17918079,0 -0.32257395,0.1433932 -0.32257397,0.3225739 v 4.6067045 c 0,0.4180884 0.33516527,0.7549975 0.75325367,0.7549974 H 2.1980774 V 7.1846417 h 2.17781 v 0.6852516 h 0.7445355 c 0.4180884,0 0.7532537,-0.336909 0.7532537,-0.7549974 V 2.5081914 c 0,-0.1791807 -0.1433931,-0.322574 -0.3225739,-0.3225739 z m 0.6085314,0.7375609 h 3.3233833 c 0.097803,0 0.1761079,0.078305 0.1761079,0.1761079 V 5.0417045 H 1.4552855 V 3.0992863 c 0,-0.097803 0.078305,-0.1761079 0.176108,-0.1761079 z M 1.4552855,5.7478799 H 2.546806 V 6.4383625 H 1.4552855 Z m 2.5840788,0 H 5.1291411 V 6.4383625 H 4.0393643 Z" />
+						</g></svg>
+				</div>
+		</div>
+		<div class="ufo_sidebar_icon_border_unselected" id="ufo_icon_newjobs_border" style="margin-top:84px;">
+				<div class="ufo_sidebar_icon" id="ufo_icon_newjobs" style="display:none;" onclick="ufo_set_new()">
+					
+					<svg
+						x="0px"
+						y="0px"
+						viewBox="-4 0 60 60"
+						enable-background="new 0 0 48 48">
+						<g>
+						<path
+						  id="path13"
+						  style="fill:var(--heremidgrey)"
+						  d="m 16.3486,10.6466 c -7.9199,0 -14.3501,6.4199 -14.3501,14.3501 0,7.9299 6.4302,14.3499 14.3501,14.3499 7.9302,0 14.3501,-6.4199 14.3501,-14.3499 0,-7.9301 -6.4199,-14.3501 -14.3501,-14.3501 z m -0.1298,17.6102 -6.6201,-7.8501 2.29,-1.9399 4.75,5.6399 4.0298,-3.1799 1.8604,2.3499 z M 34.0886,11 h -7.51 c 1.1401,0.83 2.1799,1.8 3.0801,2.89 h 4.24 l 5.55,6.33 -6.1802,0.97 c 0.28,1.23 0.4302,2.5 0.4302,3.81 0,3.34 -0.95,6.46 -2.5901,9.11 h 5.5901 V 37 h 5.26 c 1.8799,0 3.4099,-1.52 3.4099,-3.41 V 23.7 c 0,-0.95 -0.1599,-1.2401 -0.53,-1.7 l -0.3699,-0.42 h 1.8799 V 18.7 h -3.51 c -0.52,0 -1,-0.2 -1.3599,-0.54 L 36.1386,12.07 36.0285,11.93 C 35.5586,11.34 34.8386,11 34.0886,11 Z m 1.51,19 v -3 h 6 v 3 z" />
+						 </g>
+					 </svg>
+				   
+				</div>
+		</div>
+	</div>
+	<div class="ufo_option_panel" id="ufo_option_panel">
+		<div class="ufo_option_panel_header" id="ufo_option_panel_header">
+			Assign optimized — Options
+		</div>
+		<div class="ufo_option_panel_contents">
+			<div class="ufo_option_panel_selector_container" id="ufo_option_selector_optimization" onclick="ufo_option_panel_switch('optimization')">
+				<div id="text">Optimization</div>
+				<div id="lower"></div>
+			</div>
+			<div class="ufo_option_panel_selector_container" id="ufo_option_selector_routesettings" onclick="ufo_option_panel_switch('routesettings')">
+				<div id="text">Route Settings</div>
+				<div id="lower"></div>
+			</div>
+			<div class="ufo_option_panel_selector_container" id="ufo_option_selector_timeandcapacity" onclick="ufo_option_panel_switch('timeandcapacity')">
+					<div id="text">Time & Capacity Settings</div>
+					<div id="lower"></div>
+			</div>
+			<div class="ufo_option_panel_text" id="ufo_option_panel_text">
+
+			</div>
+		</div>
+	</div>
+	<div class="ufo_debug_panel" id="ufo_debug_panel" style="display:none;">
+		debug info
+	</div>
+	<div class="ufo_phone" id="ufo_smartphone"></div>
+	<div class="main_container" id="main_container">
+		<div class="story_caption" id="story_caption" onclick="story_do_next()">
+			<div class="story_caption_title" id="story_caption_title"></div>
+			<div class="story_caption_body" id="story_caption_body"></div>
+		</div>
+		<div class="sidebar" id="sidebar">
+		</div>
+		<div class="shade" id="shade"></div>
+		<div class="map_container" id="alive_container"></div>
+		<div class="map_container" id="map_container">
+
+			<!--
+			<svg id="trace_layer" class="tracker_layer">
+				<defs>
+					<style>
+							.trace {stroke:#3f59a7; stroke-width:3px; stroke-linecap:square; stroke-linejoin:square; }
+							.tracepoint {stroke-width:1px; stroke:#3f59a7; fill:#3f59a7; fill-opacity:0.2; }
+							.tracepoint_noacc {stroke-width:0px; fill:#3f59a7; }
+							.tracepoint_invis {stroke-width:1px; stroke:#3f59a7; }
+							.geofence {stroke:#06b87c; stroke-width:1px; fill:#82dbbd; fill-opacity:.2; }
+					</style>
+				</defs>
+				<g id="traces"></g>
+			</svg>-->
+			<div id="tracker_layer" class="tracker_layer"></div>
+			<div id="map_canvas" class="map_canvas">
+				<canvas class="tracker_layer" id="trace_layer" width="200" height="200">
+
+				</canvas>
+
+			</div>
+			
+		</div>
+		<div class="here_logo" id="here_logo"></div>
+		<div id="bottom_bar" class="bottom_bar">
+				<div id="bottom_bar_content" class="bottom_bar_content">
+					<div id="bottom_bar_header" class="bottom_bar_header"></div>
+					<div id="bottom_bar_sub_container" class="bottom_bar_sub_container">
+						<div id="bottom_bar_data" class="bottom_bar_data">
+
+						</div>
+						<div id="bottom_bar_graphic" class="bottom_bar_graphic">
+
+						</div>
+					</div>
+					<div id="bottom_bar_stages" class="bottom_bar_stages"></div>
+				</div>
+				<div id="bottom_bar_buttons" class="bottom_bar_buttons">
+						<div class="time_change_button" id="time_change_earlier" onclick="time_change({'delta':-1,'caller':'bottom_bar_buttons'})"></div>
+						<div class="time_change_button" id="time_change_later" onclick="time_change({'delta':1,'caller':'bottom_bar_buttons'})"></div>
+				</div>
+		</div>
+		<!--<div id="map_time_control" class="map_time_control">
+			<input type="submit"  style="-webkit-transform:rotate(180deg);-moz-transform:rotate(180deg);transform:rotate(180deg);" class="time_change" onclick="time_change({'delta':-1,'caller':'map_time_control'})" value=""></input>
+			<div class="time_current" id="time_current">Now</div>			
+			<input type="submit"  class="time_change" onclick="time_change({'delta':1,'caller':'map_time_control'})" value=""></input>
+		</div>-->
+		<div id="ufo_time_control" class="ufo_time_control">
+			<div class="ufo_time_startdate" id="ufo_time_startdate">
+				Oct 27, 2019, 2:00
+			</div>
+			<div class="ufo_time_tick" style="left:calc(16.667% - 6.5%)"><strong>I</strong><br/>04:00</div>
+			<div class="ufo_time_tick" style="left:calc(33.333% - 8%)"><strong>I</strong><br/>08:00</div>
+			<div class="ufo_time_tick" style="left:calc(50% - 9.5%)"><strong>I</strong><br/>12:00</div>
+			<div class="ufo_time_tick" style="left:calc(66.667% - 11%)"><strong>I</strong><br/>16:00</div>
+			<div class="ufo_time_tick" style="left:calc(83.333% - 12.5%)"><strong>I</strong><br/>20:00</div>
+			<div class="ufo_time_box" id="ufo_time_box">
+				<div class="ufo_time_selector" onclick="ufo_timechange(event)"></div>
+				<div class="ufo_time_morning"></div>
+				<div class="ufo_time_evening"></div>
+				<div class="ufo_current_time" id="ufo_current_time"></div>
+			</div>
+		</div>
+		
+	</div>
+		<div class="alert" id="alert_popup">
+			<div id="alert_title">Sensor recalibration needed</div>
+			<div id="alert_body">The gas flow sensor calibration is outdated. The device was last calibrated in excess of six months ago. For greatest accuracy, the values must be checked</div>
+			<div class="alert_button">Dismiss</div>
+			<div class="alert_button_default">Dispatch</div>
+		</div>
+	<div class="map_zoom_in" onclick="map_zoom({'level':1,'caller':'map_zoom_in'})">+</div>
+	<div class="map_zoom_out" onclick="map_zoom({'level':-1,'caller':'map_zoom_out'})">-</div>
+	<div class="map_data_selector" id="map_data_selector"></div>
+	<div class="map_data_options" id="map_data_options">
+		<div>Traffic</div>
+		<div>Ozone</div>
+		<hr />
+		<div><span>E</span>|<span>L</span></div>
+	</div>
+	<div class="loading" id="loading_icon">Loading...</div>
+	<div class="map_error" id="map_error" onclick="map_log_bad(0,true)"></div>
+	<div class="webconsole" id="console"></div>
+	<div style="display:none;">
+		<img src="./images/gate_factory_black.png" id="icon_factory">
+		<img src="./images/gate_port_black.png" id="icon_port">
+		<img src="./images/gate_staging_black.png" id="icon_staging">
+		<img src="./images/gate_ship_black.png" id="icon_ship">
+	</div>
+
+	<!--<div onclick="draw_map()" style="border: 2px solid white; color: white;">Map</div>
+	<div class="marker" id="marker"></div>-->
+	</div>
+</body>
+</html>

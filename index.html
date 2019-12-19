@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width minimum-scale=1.0 maximum-scale=1.0 initial-scale=1.0">
+<title>HERE IoT Demo</title>
+	<script src="./scripts/core.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="./ignite.css" />
+	<link rel="stylesheet" type="text/css" href="./jquery-ui.css" />
+	<script type="Text/JavaScript">
+		var time = 1;
+		var map_zlevel = 3;
+		var map_tile_offset_x = 0;
+		var map_tile_offset_y = 0;
+		var nxoff = 1024;
+		var nyoff = 512;
+		var gmheight = 4;
+		var gmwidth = 6;
+		var top_left = [41.46471,1.97075];
+		var center = [3.9657, -64.5676];
+		var container_height = 800;
+		var container_width = 1200;
+		var sidebar_width = 400;
+		var sidebar_height = 800;
+		var side_menu_width = 82;
+		var normalized_origin = [];
+		var active_tracker = "";
+		var active_story = "";
+		var sidebar_active = true;
+		var map_options_visible = false;
+		var current_map_context = "logistics";
+		var contexts = ["delay","logistics","temperature","battery"];
+		var mouse_x,mouse_y;
+		var lock_movement=false;
+		var o_horz,o_vert,t_horz,t_vert;
+		var start_date = false;
+		var canon_date = new Date();
+		var geofence_origins = {};
+		var tracker_origins = {};
+		var tdiff = 0;
+		var limit_to_group = ""; //used to track only a subset of trackers
+		var pos_sources = ["GNSS","WLAN/Cell","WLAN","BLE","UWB"];
+		//var use_trackers = ["watch1","watch2","watch3","watch4","watch5","watch6","watch7","watch8","watch9"];
+		var use_trackers = [];
+		var camera_follow = false; //can be set and will always lock the camera to the tracker's position
+		var last_err;	
+		var bad_tiles = [];
+		var animation;
+		var story_text = "";
+		var indicator_on;
+		var indicator_data = [];
+		var autoplay = 0;
+		var autoplay_counter = 0;
+		var timer = 0;
+		var markingup = ""; //buffer for caption text
+		var mapstyle = "reduced";
+		var new_map = "";
+		var map_needs_redraw = false;
+		var map_tiles_remaining = 0;
+		var map_needs_firstdraw = true;
+		var expanded_summary = false;
+		var scripts_remaining = 0;
+		var jsscripts = ["./scripts/lastmile.js","./scripts/data.js","./scripts/ship_routes.js","./scripts/stages_graph2.js","./scripts/trackerdata.js","./scripts/trackerlogic.js","./scripts/stories.js","./scripts/storylogic.js","./scripts/jquery-3.2.1.min.js","./scripts/proj4.js","./scripts/velocity.min.js","./scripts/velocity.ui.js","./scripts/alive.js","./scripts/aliveassetdata.js","./scripts/alivegatedata.js","./scripts/alivejourneydata.js","./scripts/alive_charts.js","./scripts/jquery-ui.min.js","./scripts/jquery.ui.touch-punch.js"];
+		//var jsscripts = ["./scripts/data.js","./scripts/trackerdata.js","./scripts/trackerlogic.js","./scripts/stories.js","./scripts/storylogic.js","./scripts/jquery-3.2.1.min.js","./scripts/proj4.js","./scripts/velocity.min.js","./scripts/velocity.ui.js","./scripts/Chart.js","./scripts/jquery-ui.min.js"];
+		var graph_active = false;
+		var stages_active = false;
+		var blocking_map = false; //set true when the map is being redrawn to prevent cascading map draws
+		var show_map_errors = false;
+		var tcx,tcv; //trace context and canvas
+		var trace_points = [];
+		var calls = 0;
+		var trace_params = []; //set from the tracker ID and map offsets when a trace is drawn and used to compute if the trace has to be REdrawn
+		var sidebar_id = "";
+		var graph_width = 435;
+		var tracker_steps = {}; //used to record the appropriate step index for every tracker
+		var alive_last_called_time; //Used to determine whether or not a data block needs to be rebuilt. String, mode+time+duration
+		var alive_duration = 10; // In days
+		var alive_realtime = true;
+		var alive_data_mode; // journeys, routes, vehicle, etc
+		var alive_display_mode; // list, data, map
+		var alive_chart_counter = 0;
+		
+		var alive_p_start = false; //provisional start for the time widget
+		var alive_p_end = false;
+		var alive_days_ago = 0;
+		var alive_search_term = "";
+		var alive_active_gate;
+		var alive_active_route;
+		var alive_active_journeys;
+		var alive_active_asset;
+		var alive_active_asset_center;
+		var alive_data_needs_refresh = true;
+		var alive_blocking_map = false;
+
+		var alive_metadata = {};
+		var alive_metadata_assoc = {};
+		
+		var alive_history = [];
+		var alive_chart_legends = {}; // used to store values for every alive graph chart data
+		var alive_chart_mode = "delay";
+		var port_of_departure = "Houston";
+
+		var blocking_queue = false; // Whether or not a function is currently being performed.
+		var queuelist = []; // Queued up functions to perform
+		
+		var fleet = false; // This is true so delivery stops will be drawn in the anim loop.
+		var anim_queue = new Set(); // This is a list of ufo_path anims to be iterated in the anim loop
+		var fleetpaths = []; // This is a list of paths that will be redrawn when the map is zoomed
+		var fleetmode = ""; // This is the display mode (i.e. "plan", "tours")
+
+		var mtiles = []; // Test to see if I can smooth out the redraw problem.
+
+		var map_last_call = ""; // This is the last reason the map was redrawn, and is always unset from the map_finish() function
+
+		var pda_active = false; // Post-drive analysis
+		var pda_vehicle = "car9"; // This is the vehicle for which post-drive analysis is performed
+		var pda_obj; // Object for post-drive analysis
+		var pda_mode = "";
+		var pda_path_mode = "";
+
+		var ufo_option_panel_mode = "optimization"; // Which tab is active in the UFO option panel
+		var ufo_midnight = 0; // unixtime value of midnight for the given day
+		var fleet_solutions_calculated = false;
+		var fleet_solutions_dispatched = false;
+		var fleet_jobs_imported = false;
+		var fleet_needs_redraw = false;
+		var ufo_debug = false;
+
+		var ufo_minstep = 0;
+		var ufo_remaining_steps = 0;
+
+		var ufo_phone_visible;
+		var start_time;
+
+		var temp_link_map = [];
+		var temp_last_node = -1;
+		var madjy = 300;
+		var madjx = 512;
+		var ufo_opts = {
+			optimization:{
+				current:0,
+				opts:["fewest","balanced","fastest"],
+				strings:["Optimized for fewest number of vehicles","Balance automatically (distribute between drivers)","Fastest (distribute to all drivers)"]
+			}
+		};
+
+		var msmap = {
+			"type":"container",
+			"type_plural":"containers",
+			"class":"product",
+			"class_plural":"products",
+			"uid":"uid",
+			"gen":"container",
+			"gen_plural":"containers",
+			"ship_type":"container ship"
+		}
+		var predefs = {
+			0:{
+				"position":[40.536394,-73.93538],
+				"zoom":9,
+				"time":1527176789,
+				"context":"delay",
+				"thing":"pharma4"
+			},
+			1:{
+				"position":[39.18618,-76.46671],
+				"zoom":10,
+				"time":1526991389,
+				"context":"delay",
+				"thing":"car2"
+			},
+			2:{
+				"position":[39.24363,-76.532346],
+				"zoom":15,
+				"time":1527070589,
+				"context":"delay",
+				"thing":"car4"
+			},
+			3:{
+				"position":[3.9657, -64.5676],
+				"zoom":3,
+				"time":1546732800,
+				"context":"logistics",
+				"thing":""
+			}
+		}
+	</script>
+</head>
+
+<body onload="setup()">
+	<div class="loading_screen" id="loading_screen"></div>
+	<div class="body_container">
+	<div class="topbar">
+		<div id="selected">Dashboard</div>
+		<div>Workspace</div>
+		<div>Device management</div>
+	</div>
+	<div class="side_menu" id="side_menu">
+		<div class="side_menu_icon" id="side_back"></div>
+		<div class="side_menu_icon" id="side_map" onclick="map_data_context_switch({'mode':'map','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" style="display: none;" id="side_devices" onclick="map_data_context_switch({'mode':'devices','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" style="display: none;" id="side_geofences"></div>
+		<div class="side_menu_icon" style="display: none;" id="side_scenarios" onclick="map_data_context_switch({'mode':'scenarios','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="side_routes" onclick="map_data_context_switch({'mode':'routes','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="side_checkpoints" onclick="map_data_context_switch({'mode':'checkpoints','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="predef1" onclick="trigger_predef({'index':0,'caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="predef2" onclick="trigger_predef({'index':1,'caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="predef3" onclick="trigger_predef({'index':2,'caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="predef4" onclick="trigger_predef({'index':3,'caller':'side_menu'})"></div>
+	</div>
+	<div class="main_container" id="main_container">
+		<div class="story_caption" id="story_caption" onclick="story_do_next()">
+			<div class="story_caption_title" id="story_caption_title"></div>
+			<div class="story_caption_body" id="story_caption_body"></div>
+		</div>
+		<div class="sidebar" id="sidebar">
+		</div>
+		<div class="map_container" id="alive_container"></div>
+		<div class="map_container" id="map_container">
+
+			<!--
+			<svg id="trace_layer" class="tracker_layer">
+				<defs>
+					<style>
+							.trace {stroke:#3f59a7; stroke-width:3px; stroke-linecap:square; stroke-linejoin:square; }
+							.tracepoint {stroke-width:1px; stroke:#3f59a7; fill:#3f59a7; fill-opacity:0.2; }
+							.tracepoint_noacc {stroke-width:0px; fill:#3f59a7; }
+							.tracepoint_invis {stroke-width:1px; stroke:#3f59a7; }
+							.geofence {stroke:#06b87c; stroke-width:1px; fill:#82dbbd; fill-opacity:.2; }
+					</style>
+				</defs>
+				<g id="traces"></g>
+			</svg>-->
+			<div id="tracker_layer" class="tracker_layer"></div>
+			<div id="map_canvas" class="map_canvas">
+				<canvas class="tracker_layer" id="trace_layer" width="200" height="200">
+
+				</canvas>
+
+			</div>
+			
+		</div>
+		<div class="here_logo" id="here_logo"></div>
+		<div id="bottom_bar" class="bottom_bar">
+				<div id="bottom_bar_content" class="bottom_bar_content">
+					<div id="bottom_bar_header" class="bottom_bar_header"></div>
+					<div id="bottom_bar_sub_container" class="bottom_bar_sub_container">
+						<div id="bottom_bar_data" class="bottom_bar_data">
+
+						</div>
+						<div id="bottom_bar_graphic" class="bottom_bar_graphic">
+
+						</div>
+					</div>
+					<div id="bottom_bar_stages" class="bottom_bar_stages"></div>
+				</div>
+				<div id="bottom_bar_buttons" class="bottom_bar_buttons">
+						<div class="time_change_button" id="time_change_earlier" onclick="time_change({'delta':-1,'caller':'bottom_bar_buttons'})"></div>
+						<div class="time_change_button" id="time_change_later" onclick="time_change({'delta':1,'caller':'bottom_bar_buttons'})"></div>
+				</div>
+		</div>
+		<div id="map_time_control" class="map_time_control">
+			<input type="submit"  style="-webkit-transform:rotate(180deg);-moz-transform:rotate(180deg);transform:rotate(180deg);" class="time_change" onclick="time_change({'delta':-1,'caller':'map_time_control'})" value=""></input>
+			<div class="time_current" id="time_current">Now</div>			
+			<input type="submit"  class="time_change" onclick="time_change({'delta':1,'caller':'map_time_control'})" value=""></input>
+		</div>
+		
+		
+	</div>
+		<div class="alert" id="alert_popup">
+			<div id="alert_title">Sensor recalibration needed</div>
+			<div id="alert_body">The gas flow sensor calibration is outdated. The device was last calibrated in excess of six months ago. For greatest accuracy, the values must be checked</div>
+			<div class="alert_button">Dismiss</div>
+			<div class="alert_button_default">Dispatch</div>
+		</div>
+	<div class="map_zoom_in" onclick="map_zoom({'level':1,'caller':'map_zoom_in'})">+</div>
+	<div class="map_zoom_out" onclick="map_zoom({'level':-1,'caller':'map_zoom_out'})">-</div>
+	<div class="map_data_selector" id="map_data_selector"></div>
+	<div class="map_data_options" id="map_data_options">
+		<div>Traffic</div>
+		<div>Ozone</div>
+		<hr />
+		<div><span>E</span>|<span>L</span></div>
+	</div>
+	<div class="loading" id="loading_icon">Loading...</div>
+	<div class="map_error" id="map_error" onclick="map_log_bad(0,true)"></div>
+	<div class="webconsole" id="console"></div>
+	<div style="display:none;">
+		<img src="./images/gate_factory_black.png" id="icon_factory">
+		<img src="./images/gate_port_black.png" id="icon_port">
+		<img src="./images/gate_staging_black.png" id="icon_staging">
+		<img src="./images/gate_ship_black.png" id="icon_ship">
+	</div>
+
+	<!--<div onclick="draw_map()" style="border: 2px solid white; color: white;">Map</div>
+	<div class="marker" id="marker"></div>-->
+	</div>
+</body>
+</html>

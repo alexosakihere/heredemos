@@ -1,0 +1,1 @@
+<html> <head> <title> 400 Bad Request </title> </head> <body> <h1>400 Bad Request </h1> Zoom levels 0 and 20 are not supported for 512x512 tiles. </body> </html>

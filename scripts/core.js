@@ -321,7 +321,7 @@ function setQueryVariable() {
 	
 	*/
 	
-	var qcenter = "?center="+center[0]+","+center[1] // this is the map window center
+	var qcenter = "?center="+center[0].toFixed(4)+","+center[1].toFixed(4) // this is the map window center
 	var qzoom = "&z="+map_zlevel;
 	var qthing = "";
 	var qtime = "";
@@ -473,8 +473,8 @@ function queue_function() {
 		map_finish(next_f.params);
 	}
 	else if(next_f.type=="draw_panels") {
-		assignments_panel.draw();
-		order_panel.draw();
+		assignments_panel.draw(next_f.params);
+		order_panel.draw(next_f.params);
 	}
 	else if(next_f.type=="ufo_activate_stops") {
 		ufo_activate_stops(next_f.params);

@@ -10,6 +10,8 @@ var ufo_autoplay_counter = 0;
 var ufo_smooths = {};
 var res = .1;
 var ufo_draw_call = -1; //index to a tour ID to have its route drawn and shaded.
+var late_seconds = 900; //time in seconds where a delivery will be considered "very late" (15 minutes);
+var offschedule_seconds = 600; //time at which a driver will be considered off schedule (10 minutes);
 
 /*
 
@@ -1215,6 +1217,34 @@ class ufo_dropdown {
                 this.pid.showmode = "delayed";
                 this.pid.draw();
                 break;
+            case "delay_normal":
+                this.idx = 1;
+                late_seconds = 900;
+                offschedule_seconds = 600;
+                this.pid.draw();
+                map_finish({caller:"dropdown"});
+                break;
+            case "delay_relaxed":
+                this.idx = 2;
+                late_seconds = 1800;
+                offschedule_seconds = 900;
+                this.pid.draw();
+                map_finish({caller:"dropdown"});
+                break;
+            case "delay_aggressive":
+                this.idx = 3;
+                late_seconds = 600;
+                offschedule_seconds = 400;
+                this.pid.draw();
+                map_finish({caller:"dropdown"});
+                break;
+            case "delay_very_aggressive":
+                this.idx = 4;
+                late_seconds = 300;
+                offschedule_seconds = 200;
+                this.pid.draw();
+                map_finish({caller:"dropdown"});
+                break;
             default:
                 this.idx = (val+1);
                 break;
@@ -2239,7 +2269,7 @@ class ufo_stop {
                 }
                 else {
                     if(ufo_tours[this.tourid].status>2) {
-                        if(ufo_tours[this.tourid].delay>600) {
+                        if(ufo_tours[this.tourid].delay>late_seconds) {
                             this.status = 3;
                         }
                         else {
@@ -2394,7 +2424,7 @@ class ufo_stop {
             var sched_time = new Date((this.eta)*1000.0);
             var sched_time_string = sched_time.getHours() + ":" + ("0"+sched_time.getMinutes()).substr(-2);
             var sched_time_string_with_delay = $("<span />");
-            if(eta_delay > 600 && this.status!=4 ) {
+            if(eta_delay > late_seconds && this.status!=4 ) {
                 var sched_time_with_delay = new Date((this.eta + eta_delay)*1000);
                 $(sched_time_string_with_delay).css({"margin-left":10,"font-style":"italic"});
                 $(sched_time_string_with_delay).append("(new ETA: "+sched_time_with_delay.getHours() + ":" + ("0"+sched_time_with_delay.getMinutes()).substr(-2)+")");
@@ -2802,7 +2832,7 @@ class ufo_tour {
             /**
              * "driver_div" is a formality--in this case we'll use it to show ETA
              */
-            if(this.delay<300) {
+            if(this.delay<offschedule_seconds) {
                 $(driver_div).append("On time");
             }
             else {
@@ -3582,6 +3612,7 @@ function ufo_draw_route(params) {
     dx = (mcx) + ((npos[1] - normalized_origin[1]) * 512);
     dy = (1024) + ((npos[0] - normalized_origin[0]) * 512);
     tcx.moveTo(dx, dy);
+    var max_delay = late_seconds; // Everything later than 10 minutes is red
     for(var i=1;i<ipath.length;i++) {
         npos = get_normalized_coord(ipath[i]);
         dx = (mcx) + ((npos[1] - normalized_origin[1]) * 512);
@@ -3604,25 +3635,25 @@ function ufo_draw_route(params) {
             tcx.stroke();
             tcx.lineWidth = 3;
 
-            if(tidx[i]>600) {
+            if(tidx[i]>max_delay) {
                 tcx.strokeStyle = "rgba(196,28,51,"+alpha+")";
             }
-            else if(tidx[i]>400) {
+            else if(tidx[i]>(max_delay*.75)) {
                 tcx.strokeStyle = "rgba(236,97,14,"+alpha+")"; // "#ec610e";
             }
-            else if(tidx[i]>300) {
+            else if(tidx[i]>(max_delay*.5)) {
                 tcx.strokeStyle = "rgba(241,137,74,"+alpha+")"; // "#f1894a";
             }
-            else if(tidx[i]>200) {
+            else if(tidx[i]>(max_delay*.33)) {
                 tcx.strokeStyle = "rgba(250,184,0,"+alpha+")"; // "#fab800";
             }
-            else if(tidx[i]>150) {
+            else if(tidx[i]>(max_delay*.25)) {
                 tcx.strokeStyle = "rgba(251,202,64,"+alpha+")"; // "#fbca40";
             }
-            else if(tidx[i]>100) {
+            else if(tidx[i]>(max_delay*.16)) {
                 tcx.strokeStyle = "rgba(130,219,189,"+alpha+")"; // "#82dbbd";
             }
-            else if(tidx[i]>50) {
+            else if(tidx[i]>(max_delay*.08)) {
                 tcx.strokeStyle = "rgba(68,202,157,"+alpha+")"; // "#44ca9d";
             }
             else {
@@ -5087,7 +5118,7 @@ function ufo_firstrun() {
         assignments_panel = new vertical_panel({ id: "assignments", icon: "assignments", name: "Planning", left: 400 });
         assignments_panel.add_dropdown({ id: "show", elements: ["Show: All tours"], clickactions:[""], show_first: true });
         assignments_panel.add_filter({ id: "filter", text: "Filter: " });
-        assignments_panel.add_dropdown({ id: "sort", elements: ["Sort by: Open", "Sort by: Remaining"] });
+        assignments_panel.add_dropdown({ id: "sort", elements: ["Delay tolerance: Normal", "Delay tolerance: Relaxed", "Delay tolerance: Aggressive", "Delay tolerance: Very aggressive"],clickactions:["delay_normal","delay_relaxed","delay_aggressive","delay_very_aggressive"] });
         assignments_panel.add_dropdown({ id: "assignment_action", elements: ["[0]", "Select all", "Unselect all"], clickactions: ["", "select_all_vehicles", "unselect_all_vehicles"], midbar: true, vars: ["tour_count"] });
         assignments_panel.add_action_button({start_hidden:true,text:"Optimize",position:"bottom-right",action:"launch_optimize","id":"optimize",panels:[order_panel]});
         assignments_panel.add_action_button({start_hidden:true,text:"Cancel",position:"bottom-right",action:"reset_optimize","id":"reset_optimize",panels:[order_panel]});

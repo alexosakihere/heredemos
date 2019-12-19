@@ -45,7 +45,6 @@ class smartphone {
     }
 
     draw(caller) {
-        if(caller!=undefined) { console.log(caller); }
         this.signinprogress = false;
         this.activesignature = [];
         this.signature = []; // Reset the signature process if we have to redraw.
@@ -4713,6 +4712,7 @@ function ufo_mode_switch(newmode) {
         }
         else {
             if(ufo_phone.visible==false) {
+                ufo_phone.current_stop = -1; // Fixing redraw bug.
                 ufo_phone.show();
             }
             else {

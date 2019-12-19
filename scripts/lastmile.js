@@ -468,7 +468,31 @@ class smartphone {
                 $("#ufo_phone_display").append(nsdiv);
             }
             
-        }    
+        }
+
+        // Add icons for depot and warehouse (depot first)
+        var next_stop = ufo_depots[0];
+        var relpos = get_normalized_coord([next_stop.lat,next_stop.lon,14]);
+        var nsdiv = $("<div />",{"class":"ufo_phone_stop"});
+        $(nsdiv).append(ufo_icons["warehouse"]);
+        rx = (drx-relpos[1])*512.0;
+        ry = (dry-relpos[0])*512.0;
+        tdx = ddx - rx - 23.0;
+        tdy = ddy - ry - 23.0;
+        $(nsdiv).css({"padding":"3px","border-radius":"50%","background-color": ufo_colors["onschedule_bg"],"border":"1px solid #6f83bd","width":40,"height":40,"left":tdx,"top":tdy});
+        $("#ufo_phone_display").append(nsdiv);
+
+        // Add icons for depot and warehouse (depot first)
+        next_stop = ufo_depots[1];
+        relpos = get_normalized_coord([next_stop.lat,next_stop.lon,14]);
+        nsdiv = $("<div />",{"class":"ufo_phone_stop"});
+        $(nsdiv).append(ufo_icons["depot"]);
+        rx = (drx-relpos[1])*512.0;
+        ry = (dry-relpos[0])*512.0;
+        tdx = ddx - rx - 23.0;
+        tdy = ddy - ry - 23.0;
+        $(nsdiv).css({"padding":"3px","border-radius":"50%","background-color": "var(--heremidgrey)","border":"1px solid #6f83bd","width":40,"height":40,"left":tdx,"top":tdy});
+        $("#ufo_phone_display").append(nsdiv);
     }
 
     tilemap() {
@@ -1242,8 +1266,10 @@ class vertical_panel {
         $("#main_container").prepend(parent_div);
     }
 
-    draw(caller) {
+    draw(params) {
+        if(params==undefined) { params = {}; }
         blocking_queue=true;
+        var caller = params.caller;
         if(caller==undefined) {
             console.log("Draw call made to: "+this.pid);
         }
@@ -1271,10 +1297,22 @@ class vertical_panel {
             this.visible = true;
             var ladj = 720+(($("#map_container").width()-720)/2);
             $("#map_container").css({"transform-origin":""+ladj+"px 50%"});
-            var mc = get_normalized_coord(center); // map center
+            if(params.move_to_params!=undefined) {
+                map_zlevel = 13;
+                var mc = get_normalized_coord([36.1373,-115.1888]);
+            }
+            else {
+                var mc = get_normalized_coord(center); // map center
+            }
             var ac = get_projected_coord([mc[0],mc[1]-.75]); // ADjusted center shifted by 256 pixels left
             if(this.pid=="assignments") { 
-                queuelist.push({"type":"map_move_to","params":{"dcoord":ac,"after":get_projected_coord(mc)}});
+                if(params.move_to_params!=undefined) {
+                    queuelist.push({"type":"map_move_to","params":{"dcoord":ac,"zdir":params.move_to_params.zdir,"after":get_projected_coord(mc)}});
+                }
+                else {
+                    queuelist.push({"type":"map_move_to","params":{"dcoord":ac,"after":get_projected_coord(mc)}});
+                }
+                
             }
             $("#ufo_parent_"+this.pid).velocity({width:[320,0],left:[this.left,64]},{duration:160,easing:"easeOutQuart"});
         }
@@ -1931,9 +1969,19 @@ class ufo_stop {
                         ufo_stops[i].tourid = -1;
                         ufo_stops[i].update_status(false);
                     }
-                    order_panel.draw();
-                    assignments_panel.draw();
+                    fleetmode = "plan";
+                    ufo_sidebar_icons();
+                    queuelist.push({"type":"draw_panels","params":{move_to_params:{dcoord:[36.1373,-115.1888],zdir:-1}}});
+                    //queuelist.push({"type":"map_move_to","params":{});
+                    //order_panel.draw();
+                    //assignments_panel.draw();
                 }
+            })
+        }
+        else if(this.uid=="w0") {
+            // Bind a special onclick action to the depot to load tours if they have not yet been loaded.
+            $(icon).on("click",function() {
+                ufo_mode_switch("vehicles");
             })
         }
         if(this.availablefrom>time) {
@@ -2931,12 +2979,15 @@ class ufo_tour {
         $(marker).css({ "left": pleft - pos_offset, "top": ptop - pos_offset });
 
         // Determine the current stop...
-        for(var i=this.stops.length-1;i>=0;i--) {
-            if(this.active==true) {
-                ufo_stops[this.stops[i]].update_status(ufo_autoplay);
-            }
-            if(ufo_stops[this.stops[i]].actual>time) {
-                this.current_stop = i;
+        if(t_delta%10==0) {
+            // Run this loop only once a minute, not every anim frame update.
+            for(var i=this.stops.length-1;i>=0;i--) {
+                if(this.active==true) {
+                    ufo_stops[this.stops[i]].update_status(ufo_autoplay);
+                }
+                if(ufo_stops[this.stops[i]].actual>time) {
+                    this.current_stop = i;
+                }
             }
         }
         return t_delta;
@@ -3150,6 +3201,9 @@ function ufo_draw_fleet_paths(params) {
     }
     if(ufo_draw_call!=-1) {
         ufo_draw_route({tour:ufo_draw_call});
+        if(ufo_phone.visible==true) {
+            ufo_phone.hide();
+        }
         return;
     }
     tcx.clearRect(0, 0, tcv.width, tcv.height);
@@ -4705,7 +4759,7 @@ function ufo_mode_switch(newmode) {
         }
         
     }
-    if (newmode == "phone") {
+    if (newmode == "phone" && fleetmode!="vehicles" && fleetmode!="drivers" && (time-ufo_midnight)<59400) {
         if(ufo_phone.visible==undefined) {
             ufo_phone = new smartphone({parent:"#ufo_smartphone"});
             ufo_phone.show();
@@ -4727,6 +4781,9 @@ function ufo_mode_switch(newmode) {
             fleetmode = "";
         }
         else {
+            if(ufo_phone.visible!=undefined) {
+                ufo_phone.hide();
+            }
             fleetmode = "vehicles";
             ufo_vehicle_panel();
         }
@@ -4739,6 +4796,9 @@ function ufo_mode_switch(newmode) {
             fleetmode = "";
         }
         else {
+            if(ufo_phone.visible!=undefined) {
+                ufo_phone.hide();
+            }
             fleetmode = "drivers";
             ufo_driver_panel();
         }
@@ -4969,7 +5029,10 @@ function ufo_timechange(e) {
             if(require_updating == true) {
                 
                 if(pleft>198) {
-                    ufo_create_tours({"with_updates":true,"from_timechange":true});
+                    if(fleet_solutions_dispatched==false) {
+                        ufo_create_tours({"with_updates":true,"from_timechange":true});
+                    }
+                    
                     for(var i=0;i<ufo_tours.length;i++) {
                         ufo_tours[i].active = false;
                     }

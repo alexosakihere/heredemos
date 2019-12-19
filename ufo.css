@@ -56,7 +56,7 @@
 }
 
 .ufo_stop_list {
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     height: calc(100% - 242px);
 }
@@ -74,6 +74,17 @@
     padding-top: 5px;
     /*text-transform: uppercase;*/
     font-size: 10pt;
+}
+
+.ufo_pane_buttonframe {
+    position: absolute;
+    left: 0em;
+    right: 0em;
+    bottom: 0em;
+    display: block;
+    background:linear-gradient(to top,var(--herewhite) 70%,rgba(255,255,255,0) 100%);
+    height: 4em;
+    z-index: 50;
 }
 
 .ufo_small_card_div {
@@ -207,6 +218,7 @@
     line-height: 30px;
     text-align: center;
     font-size: 10pt;
+    z-index: 64;
     background: linear-gradient(to left,#48DAd0,#A4C3FF);
 }
 
@@ -878,7 +890,7 @@
     height: 40px;
     background-color: var(--hereufomidblue);
     border-radius: 12px;
-    bottom: 150px;
+    top: calc(100% - 190px);
 }
 
 .ufo_phone_next_stop {
@@ -887,11 +899,12 @@
     z-index: 210;
     left: 4%;
     right: 4%;
-    height: 440px;
-    bottom: -300px;
+    height: 1000px;
+    top: calc(100% - 140px);
     border-radius: 12px;
     background-color: var(--herewhite);
 }
+
 
 .ufo_phone_route_canvas {
     position: absolute;
@@ -945,10 +958,10 @@
 .ufo_phone_bar_left #phone_bar_icon {
     display: inline-block;
     position: absolute;
-    left: 60px;
-    top: 8px;
-    width: 26px;
-    height: 26px;
+    left: 3.2em;
+    top: .6em;
+    width: 1.4em;
+    height: 1.4em;
     color: var(--herewhite);
 }
 
@@ -957,11 +970,44 @@
     width: 36px;
     height: 36px;
     position: absolute;
-    left: 22px;
-    top:7px;
+    left: 1em;
+    top:.5em;
     color: var(--herewhite);
-    font-size: 18pt;
+    font-size: 14pt;
     font-weight: bold;
+}
+.ufo_phone_bar_range {
+    color: var(--herewhite);
+    position: absolute;
+    right: .8em;
+    font-size: 14pt;
+    top: .5em;
+    font-weight: bold;
+}
+
+.ufo_phone_status {
+    position: absolute;
+    right: 0em;
+    top: .5em;
+    width: 30%;
+    height: 1em;
+    z-index: 200;
+}
+.ufo_phone_status_batt {
+    position: absolute;
+    display: block;
+    width: 1.9em;
+    height: 1em;
+    right: 3.1em;
+}
+
+.ufo_phone_status_time {
+    display: block;
+    position: absolute;
+    right: .5em;
+    top: -.2em;
+    font-family: "Fira Sans";
+    color: var(--heremidgrey);
 }
 
 .phone_drawer_addr {
@@ -978,6 +1024,167 @@
     font-size: 12pt;
 }
 
+.phone_drawer_expand {
+    position: absolute;
+    left:0em;
+    top:0em;
+    width: 100%;
+}
+
+.phone_job_details {
+    display: block;
+    position: absolute;
+    left: .8em;
+    right: .8em;
+    top: 8em;
+    min-height: 5em;
+}
+
+.phone_job_details_recipient {
+    display: block;
+    width: 60%;
+    font-weight: bold;
+    font-size: 16pt;
+    font-family: "Fira Sans";
+}
+.phone_job_details_recipient span {
+    display: block;
+    font-weight: 100;
+    font-size: 70%;
+    color: var(--heremidgrey);
+}
+
+.phone_button_wrapper {
+    position: absolute;
+    width: 40%;
+    left: 32%;
+    height: 100%;
+}
+
+.phone_job_complete {
+    display: block;
+    width: 5em;
+    height: 2em;
+    background-color: var(--heregreen);
+    position: absolute;
+    right: 0em;
+    bottom: 3em;
+    border-radius: 1em;
+}
+
+.phone_job_reject {
+    display: block;
+    width: 5em;
+    height: 2em;
+    background-color: var(--herered);
+    position: absolute;
+    right: 0em;
+    bottom: 0em;
+    border-radius: 1em;
+}
+
+.phone_drawer_complete {
+    display: block;
+    position: absolute;
+    left: .8em;
+    right: .8em;
+    top: 8em;
+}
+
+.phone_complete_back {
+    position: absolute;
+    display: block;
+    left: 0em;
+    top: -3em;
+    width: 1.3em;
+    height: 1.3em;
+    border-radius: 50%;
+    padding:.3em;
+    border:.1em solid var(--herelightergrey);
+    background-color: var(--herewhite);
+    box-shadow: 1px 2px 2px 0px var(--hereufomidgrey);
+}
+
+.phone_complete_name {
+    position: absolute;
+    display: block;
+    border: .12em solid var(--herelightergrey);
+    border-radius: .5em;
+    height: 3em;
+    left: 1em;
+    right: 1em;
+    line-height: 3em;
+    padding-left: 1em;
+}
+.phone_complete_signature {
+    position: absolute;
+    display: block;
+    border: .12em solid var(--heremidgrey);
+    border-radius: .5em;
+    height: 9em;
+    left: 1em;
+    right: 1em;
+    top:8.5em;
+}
+.phone_complete_caption {
+    position: absolute;
+    display: block;
+    left: 2em;
+    top: 4.2em;
+    font-size: 80%;
+    color: var(--heremidgrey);
+}
+.phone_complete_signorder {
+    position: absolute;
+    display: block;
+    left: 2em;
+    right: 2em;
+    top: 7em;
+    font-weight: bold;
+    text-align:center;
+}
+
+.phone_complete_action {
+    position: absolute;
+    display: block;
+    left: 1em;
+    right: 1em;
+    top: 19em;
+    height: 2em;
+    border-radius: 1em;
+    background-color: var(--heregreen);
+    color: var(--herewhite);
+    line-height: 2em;
+    text-align:center;
+}
+
+.phone_nav_icon {
+    position: absolute;
+    z-index: 250;
+    width: 2em;
+    height: 2em;
+    padding: .3em;
+    border-radius: 50%;
+    right: 1em;
+    top: calc(100% - 16em);
+    background: linear-gradient(to left,#48DAd0,#A4C3FF);
+    box-shadow: 1px 2px 2px 0px var(--hereufomidgrey);
+}
+
+.ufo_phone_tbt {
+    position: absolute;
+    left: 0em;
+    right: 0em;
+    top: 0em;
+    z-index: 500;
+}
+
+/*
+
+END PHONE CSS STYLES
+
+*/
+
 .ufo_large_panel {
     position: absolute;
     display: block;
@@ -990,6 +1197,7 @@
     padding-left: 140px;
     padding-right: 50px;
     padding-top: 140px;
+    overflow:scroll;
 }
 
 .ufo_large_panel_title {
@@ -1003,9 +1211,9 @@
 
 .ufo_large_panel_card {
     display: inline-block;
-    margin: 10px;
-    width: 240px;
-    height: 320px;
+    margin: .666667em;
+    width: 16em;
+    height: 21.3333em;
     background-color: var(--herewhite);
     border: 2px solid var(--hereufogrey);
     box-shadow: 1px 2px 2px 0px var(--hereufomidgrey);
@@ -1030,7 +1238,7 @@
     top:160px;
     font-family: "Fira Sans";
     font-weight: bold;
-    font-size: 12pt;
+    font-size: 1em;
 }
 
 .ufo_large_panel_card_note {
@@ -1046,6 +1254,7 @@
 .ufo_large_panel_card_details {
     position: absolute;
     left: 20px;
+    right: 20px;
     top: 190px;
 }
 
@@ -1055,6 +1264,7 @@
     padding-left: 15px;
     padding-right: 15px;
     margin-right: 5px;
+    margin-bottom: 5px;
     border-radius: 9px;
     color: var(--herewhite);
     font-family: "Fira Sans";

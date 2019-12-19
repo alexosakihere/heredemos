@@ -1525,8 +1525,7 @@ function map_finish(params) {
 	
 	if(fleet==true) {
 		//ufo_map_all_interlinks();
-		//queue_push({"type":"ufo_draw_fleet_paths",params:{caller:"map_finish"}});
-		ufo_draw_fleet_paths({caller:fname});
+		queue_push({"type":"ufo_draw_fleet_paths",params:{caller:"map_finish"}});
 		ufo_position_tours({caller:fname});
 		ufo_position_stops({caller:fname});
 	}

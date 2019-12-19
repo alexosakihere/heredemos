@@ -3244,10 +3244,8 @@ function ufo_draw_path(params) {
             p_id = paths;
         }
         if(lmpcache[map_zlevel+"z-"+p_id]!=undefined) {
-            var from_cache = true;
-            var pdata = lmpcache[map_zlevel+"z-"+p_id];
-            var capts = [];
-            var ils = [];
+            pdata = lmpcache[map_zlevel+"z-"+p_id];
+            from_cache = true;
         }
         else {
             var pdata = [];
@@ -3374,6 +3372,7 @@ function ufo_draw_path(params) {
                 }
             }
         }
+        
     }
     else {
         var pdata = lastmile_paths[p_id];
@@ -3392,13 +3391,12 @@ function ufo_draw_path(params) {
     tcx.moveTo(dx, dy)
 
     /*
-
     for(var i=0;i<capts.length;i++) {
         npos = get_normalized_coord(capts[i][1]);
         dx = (mcx) + ((npos[1] - normalized_origin[1]) * 512);
         dy = (1024) + ((npos[0] - normalized_origin[0]) * 512);
         //tcx.fillText(capts[i][0],dx,dy);
-    } */
+    }*/
 
     var pnorm = [];
     for (var i = 1; i < pdata.length; i++) {
@@ -3437,7 +3435,8 @@ function ufo_draw_path(params) {
         avgy = avgy/cpts;
         tcx.fillText(ils[i][1],avgx,avgy);
         tcx.stroke();
-    }*/
+    }
+    */
 
     if(from_cache==false) {
         npos = get_normalized_coord(pdata[0]);
@@ -3472,8 +3471,7 @@ function ufo_draw_path(params) {
         path_data.mid = [dx, dy];
     }
     path_data.verts = pnorm;
-
-    if(from_cache==false ){
+    if(from_cache==false) {
         lmpcache[map_zlevel+"z-"+p_id] = normp;
     }
 

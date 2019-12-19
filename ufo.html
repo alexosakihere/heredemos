@@ -125,6 +125,7 @@
 		var fleet_jobs_imported = false;
 		var fleet_needs_redraw = false;
 		var ufo_debug = false;
+		var ufo_stop_at = 0; // Used in core_anim_loop; demo will stop at this time.
 
 		var ufo_minstep = 0;
 		var ufo_remaining_steps = 0;
@@ -244,6 +245,24 @@
 						</g></svg>
 				</div>
 		</div>
+		<div class="ufo_sidebar_icon_border_unselected" id="ufo_icon_drivers_border" style="margin-top:12px;">
+				<div class="ufo_sidebar_icon" id="ufo_icon_drivers" onclick="ufo_mode_switch('drivers')">
+					
+					<svg
+						xmlns:svg="http://www.w3.org/2000/svg"
+						xmlns="http://www.w3.org/2000/svg"
+						x="0px"
+						y="0px"
+						viewBox="-4 -8 40 40"
+						enable-background="new 0 0 14 14"><g id="icon_drivers_svg" class="sidebar_icon_svg">
+								<path
+								id="path15"
+								style="fill:#3f59a7"
+								d="m 20.8509,18.3142 v 5.256 H 7.0589 v -5.256 c 0,-1.4268 1.1561,-2.583 2.5746,-2.583 h 8.6344 c 1.4268,10e-5 2.583,1.1563 2.583,2.583 z m -7.0278,-4.8427 h 0.261 c 1.9254,0 3.4921,-1.5667 3.4921,-3.4921 V 7.9218 c 0,-1.9254 -1.5667,-3.4921 -3.4921,-3.4921 h -0.261 c -1.9254,0 -3.4917,1.5667 -3.4917,3.4921 v 2.0576 c 0,1.9254 1.5663,3.4921 3.4917,3.4921 z M 24.73,12.6759 v 1.27 c 0,1.19 -0.96,2.15 -2.1499,2.15 h -0.16 c -0.05,0 -0.1,0 -0.15,-0.01 -0.46,-0.81 -1.15,-1.47 -1.98,-1.88 -0.01,-0.09 -0.02,-0.17 -0.02,-0.26 v -1.27 c 0,-1.18 0.96,-2.15 2.15,-2.15 h 0.16 c 1.1899,0 2.1499,0.97 2.1499,2.15 z m 2.27,6.4 v 3.49 h -4.1499 v -4.25 c 0,-0.37 -0.04,-0.73 -0.1301,-1.08 h 2.44 c 1.01,0 1.84,0.83 1.84,1.84 z m -19.27,-6.4 v 1.27 c 0,0.07 0,0.14 -0.01,0.21 -0.8799,0.41 -1.61,1.09 -2.08,1.94 H 5.42 c -1.1901,0 -2.15,-0.96 -2.15,-2.15 v -1.27 c 0,-1.18 0.96,-2.15 2.15,-2.15 h 0.16 c 1.19,0 2.15,0.97 2.15,2.15 z m -2.5401,4.56 c -0.0898,0.35 -0.1299,0.71 -0.1299,1.08 v 4.25 H 1 v -3.49 c 0,-1.01 0.8301,-1.84 1.8401,-1.84 z" />
+						</g>
+						</g></svg>
+				</div>
+		</div>
 		<div class="ufo_sidebar_icon_border_unselected" id="ufo_icon_newjobs_border" style="margin-top:84px;">
 				<div class="ufo_sidebar_icon" id="ufo_icon_newjobs" style="display:none;" onclick="ufo_set_new()">
 					
@@ -262,6 +281,12 @@
 				   
 				</div>
 		</div>
+
+
+
+
+
+		
 	</div>
 	<div class="ufo_option_panel" id="ufo_option_panel">
 		<div class="ufo_option_panel_header" id="ufo_option_panel_header">

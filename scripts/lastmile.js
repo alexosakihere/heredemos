@@ -196,7 +196,6 @@ class smartphone {
     }
 
     sign(e) {
-        console.log(e);
         if(e.type=="touchmove") {
             var offset = e.target.getBoundingClientRect();
             var tevt = {type:"mousemove","originalEvent":{"layerX":(e.originalEvent.changedTouches[0].clientX-offset.x),"layerY":(e.originalEvent.changedTouches[0].clientY-offset.y)}};

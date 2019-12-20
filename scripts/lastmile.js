@@ -4791,20 +4791,26 @@ function ufo_mode_switch(newmode) {
         }
         
     }
-    if (newmode == "phone" && fleetmode!="vehicles" && fleetmode!="drivers" && (time-ufo_midnight)<59400) {
-        if(ufo_phone.visible==undefined) {
-            ufo_phone = new smartphone({parent:"#ufo_smartphone"});
-            ufo_phone.show();
-        }
-        else {
-            if(ufo_phone.visible==false) {
-                ufo_phone.current_stop = -1; // Fixing redraw bug.
+    if (newmode == "phone" && fleetmode!="vehicles" && fleetmode!="drivers") {
+        if((time-ufo_midnight)<59400) {
+            if(ufo_phone.visible==undefined) {
+                ufo_phone = new smartphone({parent:"#ufo_smartphone"});
                 ufo_phone.show();
             }
             else {
-                ufo_phone.hide();
+                if(ufo_phone.visible==false) {
+                    ufo_phone.current_stop = -1; // Fixing redraw bug.
+                    ufo_phone.show();
+                }
+                else {
+                    ufo_phone.hide();
+                }
             }
         }
+        else {
+            ufo_phone.hide();
+        }
+        
     }
     if (newmode == "vehicles") {
         if(fleetmode=="vehicles") {

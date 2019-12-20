@@ -4838,7 +4838,7 @@ function ufo_update_tours(params) {
             ufo_phone.tourid = ufo_tours[update_data[i][0]].uid;
             ufo_phone.displaymode = "map";
             ufo_phone.switchmode();
-            ufo_phone.toast({text:"New tour(s) added.",color:"var(--hereufoblue)",delay:2500});
+            ufo_phone.toast({text:"New job(s) added.",color:"var(--hereufoblue)",delay:2500});
             ufo_phone.toast({text:"Message from dispatch.",color:"var(--hereufoblue)",delay:1500});
             ufo_phone.toast_do();
         }
@@ -5161,6 +5161,9 @@ function ufo_timechange(e) {
                 if(pleft>198) {
                     if(fleet_solutions_dispatched==false) {
                         ufo_create_tours({"with_updates":true,"from_timechange":true});
+                    }
+                    else {
+                        ufo_update_tours({"from_timechange":true});
                     }
                     
                     for(var i=0;i<ufo_tours.length;i++) {

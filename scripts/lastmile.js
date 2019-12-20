@@ -1928,6 +1928,7 @@ class ufo_stop {
         this.recipient = args.recipient;
         this.time = args.time;
         this.notes = args.notes;
+        this.process = args.process_time; // How long does it take to complete this stop?
         this.endstate = args.endstate; // "delivered", otherwise "rejected"?
         this.status = -1; // -1 = unloaded, 0 = uninitialized, 1 = assigned, 2 = on-schedule, 3 = off-schedule, 4 = finished
         this.limits = args.limits;
@@ -2713,7 +2714,8 @@ class ufo_tour {
             It takes 5 minutes to complete a stop.
             
             */
-            var stime = 0.0;
+            var stime = 0.0; // Stop time
+            var astime = 0.0; // Actual stop time (might be different);
             if(p==0) {
                 // If p is 0, then we end the path at the depot. So we need to add 20 minutes of delay.
                 subloctime+=1200;
@@ -2727,11 +2729,21 @@ class ufo_tour {
             else {
                 if(p<substops.length-2) {
                     // So we should be computing the delay time for an actual stop.
+                    if(substops[p+1]!="d0" && substops[p+1]!="w0") {
+                        astime = ufo_stops[substops[p+1]].process;
+                    }
+                    else {
+                        astime = 300.0;
+                    }
                     subloctime+=300; // i.e. 5 minutes.
-                    traffictime+=300;
+                    traffictime+=astime;
                     stime = 300.0;
-                    for(var k=0;k<5/res;k++) {
+                    var tdelta_over_stop = (astime-300.0)/(astime/(60*res));
+                    
+                    /* ADJUST STOP DELAY TIME BY res/stop.finish() */
+                    for(var k=0;k<(astime/(60*res));k++) {
                         this.ipath.push(lastmile_nodes[nodestops[substops[p+1]]]);
+                        tconst+=tdelta_over_stop;
                         this.tidx.push(tconst);
                         // This adds some path geocoords for the DESTINATION stop.
                     }
@@ -2747,7 +2759,7 @@ class ufo_tour {
             tinvsteps = tinvsteps - (substeps-aip); // if the actual path was shorter than the substeps, reduce traffic invariant steps by that delta.
             locdist+=sublocdist;
             loctime+=(tinvsteps * (60.0*res)+stime);
-            trftime+=(aip * (60.0*res)+stime);
+            trftime+=(aip * (60.0*res)+astime);
             if(substops[p+1]!="d0" && substops[p+1]!="w0") {
                 ufo_stops[substops[p+1]].status = 1;
                 ufo_stops[substops[p+1]].tourid = this.uid;
@@ -3153,16 +3165,16 @@ function ufo_add_all_stops() {
         var inittime = new Date();
         inittime.setHours(stoptime[0]);
         inittime.setMinutes(stoptime[1]);
-        ufo_stops[i] = new ufo_stop({ uid: i, availablefrom:inittime.getTime()/1000|0, notes:stop.notes, endstate:stop.endstate, time:stop.time, lat: stop.lat, lon: stop.lon, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
+        ufo_stops[i] = new ufo_stop({ uid: i, availablefrom:inittime.getTime()/1000|0, notes:stop.notes, process_time:stop.finish_time, endstate:stop.endstate, time:stop.time, lat: stop.lat, lon: stop.lon, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
     }
     var stop = {"lat": 36.11179520406925,"lon": -115.2069771831083,"recipient": "Bobby Womack","addr": "3270 S Valley View Blvd","time":0,"availablefrom": "0:00","meta": [ "0kg"],"limits": { "timecritical": false, "refrigerated": false, "heavy": false, "fragile": false},"zip": "89102","city": "Las Vegas","state": "NV","country": "USA"}
     var stoptime = stop.availablefrom.split(":");
     var inittime = new Date();
     inittime.setHours(stoptime[0]);
     inittime.setMinutes(stoptime[1]);
-    ufo_depots[0] = new ufo_stop({ uid: "d0", availablefrom:inittime.getTime()/1000|0, notes:"",endstate:stop.endstate, time:stop.time, lat: stop.lat, lon: stop.lon, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
+    ufo_depots[0] = new ufo_stop({ uid: "d0", availablefrom:inittime.getTime()/1000|0, notes:"",endstate:stop.endstate, process_time:0.0, time:stop.time, lat: stop.lat, lon: stop.lon, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
     ufo_depots[0].status = 1;
-    ufo_depots[1] = new ufo_stop({ uid: "w0", availablefrom:inittime.getTime()/1000|0, notes:"",endstate:stop.endstate, time:stop.time, lat: 36.07131485325218, lon: -115.2217393474679, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
+    ufo_depots[1] = new ufo_stop({ uid: "w0", availablefrom:inittime.getTime()/1000|0, notes:"",endstate:stop.endstate, process_time:0.0, time:stop.time, lat: 36.07131485325218, lon: -115.2217393474679, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
     ufo_depots[1].status = 1;
 }
 

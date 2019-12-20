@@ -11,8 +11,8 @@ var ufo_smooths = {};
 var res = .1;
 var ufo_force_stops_update = false;
 var ufo_draw_call = -1; //index to a tour ID to have its route drawn and shaded.
-var late_seconds = 900; //time in seconds where a delivery will be considered "very late" (15 minutes);
-var offschedule_seconds = 600; //time at which a driver will be considered off schedule (10 minutes);
+var late_seconds = 1800; //time in seconds where a delivery will be considered "very late" (30 minutes);
+var offschedule_seconds = 900; //time at which a driver will be considered off schedule (15 minutes);
 
 /*
 
@@ -1224,30 +1224,34 @@ class ufo_dropdown {
                 this.pid.draw();
                 break;
             case "delay_normal":
+                // Late is 30 minutes, Offschedule driver is 15 minutes
                 this.idx = 1;
-                late_seconds = 900;
-                offschedule_seconds = 600;
-                this.pid.draw();
-                map_finish({caller:"dropdown"});
-                break;
-            case "delay_relaxed":
-                this.idx = 2;
                 late_seconds = 1800;
                 offschedule_seconds = 900;
                 this.pid.draw();
                 map_finish({caller:"dropdown"});
                 break;
+            case "delay_relaxed":
+                // Late is 60 minutes, offschedule driver is 30 minutes
+                this.idx = 2;
+                late_seconds = 3600;
+                offschedule_seconds = 1800;
+                this.pid.draw();
+                map_finish({caller:"dropdown"});
+                break;
             case "delay_aggressive":
+                // Late is 15 minutes, offschedule driver is 10 minutes
                 this.idx = 3;
-                late_seconds = 600;
-                offschedule_seconds = 400;
+                late_seconds = 900;
+                offschedule_seconds = 600;
                 this.pid.draw();
                 map_finish({caller:"dropdown"});
                 break;
             case "delay_very_aggressive":
+                // Late is 10 minutes, offschedule driver is 5 minutes
                 this.idx = 4;
-                late_seconds = 300;
-                offschedule_seconds = 200;
+                late_seconds = 600;
+                offschedule_seconds = 300;
                 this.pid.draw();
                 map_finish({caller:"dropdown"});
                 break;
@@ -1390,30 +1394,66 @@ class vertical_panel {
 
                 */
                var active_tours = 0;
+               var in_pda = false;
                var tour_cost = 0.0;
                var tour_time = 0.0;
                var tour_distance = 0.0;
+               var delta_cost = 0.0; // Delta plan to actual cost
+               var delta_time = 0.0; // Delta plan to actual time
+               var delta_distance = 0.0; // Delta plan to actual km
                for(var i=0;i<ufo_tours.length;i++) {
                    if(ufo_tours[i].status>0) {
                        if(this.selected_count==0 || ufo_tours[i].active==true) {
                         active_tours++;
-                        tour_distance+=ufo_tours[i].travel_dist;
-                        tour_time+=ufo_tours[i].complete_time;
+                        if(ufo_tours[i].status==4) {
+                            in_pda = true;
+                            delta_distance += (ufo_tours[i].travel_dist_actual-ufo_tours[i].travel_dist);
+                            delta_time += (ufo_tours[i].complete_time_actual-ufo_tours[i].complete_time);
+                            tour_distance+=ufo_tours[i].travel_dist_actual;
+                            tour_time+=ufo_tours[i].complete_time_actual;
+                        }
+                        else {
+                            tour_distance+=ufo_tours[i].travel_dist;
+                            tour_time+=ufo_tours[i].complete_time;
+                        }
                        }
                        
                    }
                }
+               console.log(active_tours);
                tour_distance = Math.round(tour_distance*dfactor/1000);
                var active_tours_data = $("<div />",{"class":"ufo_midbar_data_block","text":tour_distance});
                $(active_tours_data).css({"left": 120,"top":15});
-               var active_tours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Est. km"});
+               if(active_tours==1 && in_pda==true) {
+                var active_tours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Km"});
+                if(delta_distance!=0) {
+                    var delta_tours_data = $("<div />",{"class":"ufo_midbar_data_block","text":"+"+(delta_distance*dfactor/1000).toFixed(2)});
+                    $(delta_tours_data).css({"left": 120,"top":55});
+                    $(this.midbar_sect).append(delta_tours_data);
+                }
+               }
+               else {
+                var active_tours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Est. km"});
+               }
+               
                $(active_tours_caption).css({"left": 120,"top":35});
 
                tour_cost = "$"+Math.round((tour_time/3600)*dcphr + (tour_distance*dcpkm));
 
                var cost_data = $("<div />",{"class":"ufo_midbar_data_block","text":tour_cost});
                $(cost_data).css({"left": 20,"top":15});
-               var cost_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Est. cost"});
+               if(active_tours==1 && in_pda==true) {
+                var cost_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Cost"});
+                if(delta_time!=0 || delta_distance!=0) {
+                    var delta_cost = "+$"+((Math.round(((tour_time+delta_time)/3600)*dcphr + ((tour_distance+(delta_distance*dfactor/1000))*dcpkm))) - (Math.round((tour_time/3600)*dcphr + (tour_distance*dcpkm))));
+                    var delta_cost_data = $("<div />",{"class":"ufo_midbar_data_block","text":delta_cost});
+                    $(delta_cost_data).css({"left": 20,"top":55});
+                    $(this.midbar_sect).append(delta_cost_data);
+                }
+               }
+               else {
+                var cost_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Est. cost"});
+               }
                $(cost_caption).css({"left": 20,"top":35});
 
                var hours = Math.floor(tour_time/3600);
@@ -1424,7 +1464,24 @@ class vertical_panel {
 
                var hours_data = $("<div />",{"class":"ufo_midbar_data_block","text":tstring});
                $(hours_data).css({"left": 220,"top":15});
-               var hours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Est. time"});
+               if(active_tours==1 && in_pda==true) {
+                var hours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Time"});
+                if(delta_time!=0) {
+                    var dhours = Math.floor(delta_time/3600);
+                    var dmins = (delta_time/3600) - parseFloat(dhours);
+                    var dmins = Math.round(dmins*60);
+     
+                    var dtstring = dhours+"h "+dmins+"m"
+                    var delta_time_data = $("<div />",{"class":"ufo_midbar_data_block","text":"+"+dtstring});
+                    $(delta_time_data).css({"left": 220,"top":55});
+                    $(this.midbar_sect).append(delta_time_data);
+                }
+                
+               }
+               else {
+                var hours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Est. time"});
+               }
+               
                $(hours_caption).css({"left": 220,"top":35});
 
                $(this.midbar_sect).append(active_tours_data);
@@ -2047,7 +2104,6 @@ class ufo_stop {
         if (this.active == true || (this.hoverstate == true && this.status==0)) {
             if(this.tourid!=-1) {
                 if(ufo_tours[this.tourid].status=="4") {
-                    console.log("called reposition");
                     special_anim_handling = true;
                     // This means that the specified tour is COMPLETE
                     // So we're going to use a special icon representing the stop time.
@@ -2068,7 +2124,6 @@ class ufo_stop {
                     var pleft = map_tile_offset_x + (delta_x * 512);
                     var ptop = map_tile_offset_y - pos_vadjust + (delta_y * 512);
                     //marker.css({ "left": pleft - pos_offset, "top": ptop - pos_offset });
-                    console.log(pos_offset,this.o_pos_offset);
                     if(this.o_pos_offset!=pos_offset) {
                         $(marker).velocity({left:[(pleft-pos_offset),(pleft-this.o_pos_offset)],top:[(ptop-pos_offset),(ptop-this.o_pos_offset)]},{duration:160});
                         $(icon).velocity({width:[pos_offset*2,this.o_pos_offset*2],height:[(pos_offset*2.0),this.o_pos_offset*2]},{duration:160});
@@ -2546,6 +2601,7 @@ class ufo_tour {
         this.ipath = []; // This is a time-indexed list of route geocoordinates.
         this.tidx = []; // Time indices containing delay factors
         this.path_idx = [0];
+        this.has_deviations = false; // Used for route-matching and creating artificial conditions.
         this.route = []; // This contains the list of route paths
         this.traffic = {}; // This contains an ETA increment to be adjusted based on traffic
         this.driver = "";
@@ -2556,7 +2612,9 @@ class ufo_tour {
         this.small_card_id = "ufo_small_card_tour_"+ufo_tours.length;
         this.start_time;
         this.complete_time;
+        this.complete_time_actual; // Stores actual complete time with traffic forcing.
         this.travel_dist = 0.0;
+        this.travel_dist_actual = 0.0; // Update travel distances based on route deltas.
         this.mdomel;
         this.current_stop = 0;
         this.stop_for_pda = -1;
@@ -2710,8 +2768,12 @@ class ufo_tour {
         }
 
 
-        this.travel_dist = locdist;
-        this.complete_time = loctime;
+        if(this.has_deviations==false) {
+            this.complete_time = loctime;
+            this.travel_dist = locdist;
+        }
+        this.travel_dist_actual = locdist;
+        this.complete_time_actual = trftime+300.0; // Correction added for final depot stop
         this.status = 2;
 
         if(this.active==true) {
@@ -4661,11 +4723,14 @@ function ufo_create_tours(params) {
                 var use_appended = [];
                 for(var u=0;u<uas.length;u++) {
                     if(uas[u][0]==i) {
-                        use_appended = uas[u][1]; // This matches if ufo_appended_sequences has a valid tour for this.
+                        use_appended = uas[u]; // This matches if ufo_appended_sequences has a valid tour for this.
                     }
                 }
                 if(use_appended.length>0) {
-                    active_tours[i].stops = use_appended;
+                    active_tours[i].stops = use_appended[1];
+                    active_tours[i].has_deviations = true;
+                    active_tours[i].complete_time = use_appended[2];
+                    active_tours[i].travel_dist = use_appended[3];
                 }
                 else {
                     active_tours[i].stops = ufo_sequences[tours_to_use][i];
@@ -4749,6 +4814,8 @@ function ufo_update_tours(params) {
     for(var i=0;i<update_data.length;i++) {
         ufo_tours[update_data[i][0]].stops = update_data[i][1];
         ufo_tours[update_data[i][0]].create();
+        ufo_tours[update_data[i][0]].complete_time = update_data[i][2];
+        ufo_tours[update_data[i][0]].travel_dist = update_data[i][3];
         ufo_tours[update_data[i][0]].status = 3;
         ufo_tours[update_data[i][0]].active=true;
         if(ufo_phone.visible==true) {

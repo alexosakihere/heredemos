@@ -5005,6 +5005,7 @@ function ufo_timechange(e) {
         for(var i=0;i<ufo_tours.length;i++) {
             ufo_tours[i].status = 0;
             ufo_tours[i].last_p_idx = 0;
+            ufo_tours[i].stop_for_pda = -1;
             ufo_tours[i].complete_time = 0.0;
             ufo_tours[i].travel_dist = 0.0;
             ufo_tours[i].stops = [];
@@ -5073,6 +5074,7 @@ function ufo_timechange(e) {
                     
                     for(var i=0;i<ufo_tours.length;i++) {
                         ufo_tours[i].active = false;
+                        ufo_tours[i].stop_for_pda = -1;
                     }
                     for(var i=0;i<ufo_stops.length;i++) {
                         ufo_stops[i].active = false;

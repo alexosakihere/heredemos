@@ -272,9 +272,10 @@ class smartphone {
         }
         ufo_tours[2].active=true;
         this.tourid=2;
-        
-        time = 1576572300;
-        ufo_stop_at = 1576573500;
+        ufo_activate_stops({caller:"ufo_phone"});
+        map_finish({"caller":"ufo_phone"});
+        time = ufo_midnight+35604;
+        ufo_stop_at = ufo_midnight+ 36360;
         ufo_autoplay = true;
         var next_stop_bar = $("#ufo_phone_next_stop_bar");
         var next_stop_div = $("#ufo_phone_next_stop");
@@ -285,6 +286,8 @@ class smartphone {
         $("#ufo_phone_display").append(tbtdiv);
         setTimeout(function() {
             $(".ufo_phone_tbt").remove();
+            ufo_activate_stops({caller:"ufo_phone"});
+            map_finish({"caller":"ufo_phone"});
             $(next_stop_bar).velocity({"border-radius":[12,0],"left":["4%","0%"],"right":["4%","0%"],"top":[ufo_phone.bar_offset,ufo_phone.bar_offset+60]},{duration:100});
             $(next_stop_div).velocity({"border-radius":[12,0],"left":["4%","0%"],"right":["4%","0%"],"top":[ufo_phone.bar_offset+50.0,ufo_phone.bar_offset+97]},{duration:100,complete:function() { $(".ufo_phone_pos_marker").show(); }});
         },12000);

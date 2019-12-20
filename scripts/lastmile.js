@@ -2109,12 +2109,16 @@ class ufo_stop {
                     // This means that the specified tour is COMPLETE
                     // So we're going to use a special icon representing the stop time.
                     $(icon).empty();
+                    
+                    var dmod = (1.15-(this.process / 300.0)); // Ratio of stop process time to actual
+                    if(dmod<-0.05) { dmod = -.05; }
+                    
                     $(icon).css({"border-width":"3","background-color":"rgba(106,109,116,.6)","border-color":"var(--herewhite)"});
                     if(ufo_tours[this.tourid].stop_for_pda==this.uid) {
-                        pos_offset = 7.0+((this.actual-this.eta)/20);
+                        pos_offset = 16.0+(90.0*dmod);
                     }
                     else {
-                        pos_offset = 7.0+((this.actual-this.eta)/40);
+                        pos_offset = 7.0+(60.0*dmod);
                     }
                     pos_vadjust = 0.0;
                     var origin = get_normalized_coord([this.lat, this.lon]);

@@ -1054,6 +1054,7 @@ function time_change(params) {
 	alive_days_ago = parseInt((t-time) / 86400);
 	if(fleet!=true) {
 		tracker_get_steps_at_time({index:time,caller:fname});
+		ufo_force_stops_update = false;
 	}
 	map_zoom({"level":map_zlevel,"caller":fname});
 }

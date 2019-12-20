@@ -9,6 +9,7 @@ var ufo_autoplay = false;
 var ufo_autoplay_counter = 0;
 var ufo_smooths = {};
 var res = .1;
+var ufo_force_stops_update = false;
 var ufo_draw_call = -1; //index to a tour ID to have its route drawn and shaded.
 var late_seconds = 900; //time in seconds where a delivery will be considered "very late" (15 minutes);
 var offschedule_seconds = 600; //time at which a driver will be considered off schedule (10 minutes);
@@ -136,10 +137,10 @@ class smartphone {
             $(rsvgwrap).append(ufo_icons["cross"]);
             $(reject).append(rsvgwrap);
             $(reject).on("click",{arg1:nstop},function(e) {
+                ufo_force_stops_update = true;
                 e.data.arg1.endstate="rejected";
                 time = (e.data.arg1.actual-588);
                 time_change({delta:1});
-
             });
             $(stopdetails).append(recipient);
             $(stopdetails).append(complete);
@@ -181,6 +182,7 @@ class smartphone {
             var complete_action = $("<div />",{"class":"phone_complete_action","text":"Done"});
             $(complete_action).on("click",{arg1:nstop},function(e) {
                 e.data.arg1.endstate="delivered";
+                ufo_force_stops_update = true;
                 time = (e.data.arg1.actual-588);
                 time_change({delta:1});
 
@@ -2723,6 +2725,7 @@ class ufo_tour {
         marker.css({ top: -500 });
         icon.css({ "background-image": "url(./images/van.png)", "color": "#ffffff", "background-color":"var(--hereufoblue)", "text-align": "center", "border-color": "var(--herewhite)", "border-width": "2", "font-size": "8pt", "line-height": "24pt" });
         $(icon).on("click",{arg1:this},function(e) {
+            ufo_force_stops_update = true;
             if(assignments_panel.visible==false && ufo_phone.visible==false) {
                 $("#ufo_time_control").velocity({left:[735,60]},{duration:160});
                 assignments_panel.visible = true;
@@ -2909,6 +2912,7 @@ class ufo_tour {
     }
 
     small_card_selector(panel,defer_redraw) {
+        ufo_force_stops_update = true;
         if(defer_redraw==undefined) { defer_redraw = false; }
         if (this.active == false) {
             if(fleet_solutions_calculated==false || this.stops.length>0) {
@@ -3011,7 +3015,7 @@ class ufo_tour {
         $(marker).css({ "left": pleft - pos_offset, "top": ptop - pos_offset });
 
         // Determine the current stop...
-        if(t_delta%10==0) {
+        if(t_delta%10==0 || ufo_force_stops_update == true) {
             // Run this loop only once a minute, not every anim frame update.
             for(var i=this.stops.length-1;i>=0;i--) {
                 if(this.active==true) {

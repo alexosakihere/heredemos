@@ -2694,6 +2694,7 @@ class ufo_tour {
                 locstoptimeobject.setSeconds(0);
                 var lstomins = Math.floor(locstoptimeobject.getMinutes()/15);
                 locstoptimeobject.setMinutes(lstomins*15);
+                if(ufo_stops[substops[p+1]].limits.refrigerated==true) { this.refrigerated = true; /* Set tour to require refrigeration if ANY stop on it does*/ }
                 ufo_stops[substops[p+1]].eta = locstoptime;
                 ufo_stops[substops[p+1]].tstopidx = parseInt(this.ipath.length);
                 ufo_stops[substops[p+1]].eta_low = (locstoptimeobject.getTime()/1000.0)-900.0;

@@ -111,15 +111,26 @@ function core_anim_loop() {
 		}
 	}
 	if(fleet==true && ufo_autoplay==true) {
+		var any_stop_active = false;
 		for(var i=0;i<ufo_tours.length;i++) {
             if(ufo_tours[i].status=="3") {
+				any_stop_active = true;
                 ufo_tours[i].update_position();
             }
 		}
-		if(ufo_phone.visible==true && ufo_phone.tour_id!=-1) {
-			ufo_phone.draw("from step");
+		if(any_stop_active==true) {
+			if(ufo_phone.visible==true && ufo_phone.tour_id!=-1) {
+				ufo_phone.draw("from step");
+			}
+			ufo_timechange({drawOnly:true});
 		}
-		ufo_timechange({drawOnly:true});
+		else {
+			fleetpaths = [];
+			fleet_needs_redraw = true;
+			ufo_autoplay = false;
+			time = 1576857000;
+			time_change({"delta":1});
+		}
 	}
 	//console.log(ufo_remaining_steps);
 	animation = requestAnimationFrame(function() {core_anim_loop();});

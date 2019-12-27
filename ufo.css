@@ -1292,34 +1292,51 @@ END PHONE CSS STYLES
 
 .ufo_pda_stop {
     display: block;
-    width: 12em;
-    height: 4em;
+    width: 16em;
+    height: auto;
+    min-height: 4em;
     background-color: var(--herewhite);
     position: absolute;
     border-radius: .2em;
     border: .05em solid var(--herelightergrey);
     box-shadow: .05em .1em .1em 0em var(--herelightgrey);
+    padding-bottom: .5em;
+}
+
+.ufo_pda_stop div {
+    font-family: FiraSansBook;
+    color: var(--heremidgrey);
+    margin-left: .5em;
+    display: block;
+}
+
+.ufo_pda_stop_name {
+    font-size: 11pt;
+    font-weight: 900;
+    margin-top:.5em;
 }
 
 .ufo_pda_stop_addr {
-    font-family: FiraSansBook;
+    font-size: 10pt;
     font-weight: 100;
-    color: var(--heremidgrey);
-    font-size: 11pt;
-    display: block;
-    position: absolute;
-    left: .5em;
-    top: .3em;
 }
 
 .ufo_pda_stop_range {
-    font-family: FiraSansBook;
     font-size: 10pt;
-    position:absolute;
-    color: var(--heremidgrey);
-    left: .5em;
-    top: 1.3em;
+    font-weight: 100;
+    margin-top:1em;
 }
 .ufo_pda_stop_range span {
     color: black;
+    font-weight: 900;
+}
+
+.ufo_pda_stop_actual {
+    font-size: 10pt;
+    font-weight: 100;
+}
+
+.ufo_pda_stop_actual span {
+    color: black;
+    font-weight: 900;
 }

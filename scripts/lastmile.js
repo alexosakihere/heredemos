@@ -11,8 +11,8 @@ var ufo_smooths = {};
 var res = .1;
 var ufo_force_stops_update = false;
 var ufo_draw_call = -1; //index to a tour ID to have its route drawn and shaded.
-var late_seconds = 1800; //time in seconds where a delivery will be considered "very late" (30 minutes);
-var offschedule_seconds = 900; //time at which a driver will be considered off schedule (15 minutes);
+var late_seconds = 3600; //time in seconds where a delivery will be considered "very late" (60 minutes);
+var offschedule_seconds = 1800; //time at which a driver will be considered off schedule (30 minutes);
 
 /*
 
@@ -1224,17 +1224,17 @@ class ufo_dropdown {
                 this.pid.draw();
                 break;
             case "delay_normal":
-                // Late is 30 minutes, Offschedule driver is 15 minutes
+                // Late is 60 minutes, Offschedule driver is 30 minutes
                 this.idx = 1;
-                late_seconds = 1800;
-                offschedule_seconds = 900;
+                late_seconds = 3600;
+                offschedule_seconds = 1800;
                 this.pid.draw();
                 map_finish({caller:"dropdown"});
                 break;
             case "delay_relaxed":
-                // Late is 60 minutes, offschedule driver is 30 minutes
+                // Late is 90 minutes, offschedule driver is 30 minutes
                 this.idx = 2;
-                late_seconds = 3600;
+                late_seconds = 5400;
                 offschedule_seconds = 1800;
                 this.pid.draw();
                 map_finish({caller:"dropdown"});
@@ -1280,18 +1280,48 @@ class pda_panel {
         var spda_cont = $("<div />",{"class":"ufo_pda_stop"});
         var ps = ufo_stops[this.stopid]; // Object containing the stop data.
         $(spda_cont).css({"left":((this.offset*2)+15),"top":this.offset});
+        var ps_name = $("<div />",{"class":"ufo_pda_stop_name"});
+        ps_name.append(ps.recipient);
+        $(spda_cont).append(ps_name);
+
         var ps_addr = $("<div />",{"class":"ufo_pda_stop_addr"});
         ps_addr.append(ps.addr);
-
         $(spda_cont).append(ps_addr);
 
         var nstop_time = new Date(ps.eta_low*1000.0);
         var nstop_string = nstop_time.getHours() + ":" + ("0"+nstop_time.getMinutes()).substr(-2);
         nstop_time.setTime(nstop_time.getTime()+3600000);
         var nfin_string = nstop_time.getHours() + ":" + ("0"+nstop_time.getMinutes()).substr(-2);
-        var nrange = $("<div />",{"class":"ufo_pda_stop_range","text":"Scheduled: "});
+        var nrange = $("<div />",{"class":"ufo_pda_stop_range","text":"Scheduled time: "});
         nrange.append("<span>"+nstop_string + "-" + nfin_string+"</span>");
         $(spda_cont).append(nrange);
+
+        var nactual = $("<div />",{"class":"ufo_pda_stop_actual","text":"Actual: "});
+        if(ps.endstate=="delivered") {
+            var nact_time = new Date(ps.actual*1000.0);
+            var nact_string = nact_time.getHours() + ":" + ("0"+nact_time.getMinutes()).substr(-2);
+            $(nactual).append("<span>"+nact_string+"</span>");
+            $(spda_cont).append(nactual);
+            var nsigner = $("<div />",{"class":"ufo_pda_stop_actual","text":"Signed by: "});
+            $(nsigner).append("<span>"+ps.signedby+"</span>");
+            $(spda_cont).append(nsigner);
+        }
+        else {
+            $(nactual).append("<span style='color: var(--herered)'>Not delivered</span>");
+            $(spda_cont).append(nactual);
+            var nsigner = $("<div />",{"class":"ufo_pda_stop_actual","text":"Reason: "});
+            $(nsigner).append("<span>Recipient unavailable</span>");
+            $(spda_cont).append(nsigner);
+        }
+
+        var nsplan = $("<div />",{"class":"ufo_pda_stop_range","text":"Projected job time: "});
+        $(nsplan).append("<span>5 minutes</span>");
+        var nscasc = $("<div />",{"class":"ufo_pda_stop_actual","text":"Actual job time: "});
+        $(nscasc).append("<span>"+(ps.process/60).toFixed(1)+" minutes</span>");
+
+        $(spda_cont).append(nsplan);
+        $(spda_cont).append(nscasc);
+
         $(this.pdomel).append(spda_cont);
     }
 }
@@ -2153,7 +2183,7 @@ class ufo_stop {
                     }
                     else {
                         pos_offset = 7.0+(60.0*dmod);
-                        $(marker).css({ "z-index": (pos_offset * 3) });
+                        $(marker).css({ "z-index": 33 });
                     }
                     pos_vadjust = 0.0;
                     var origin = get_normalized_coord([this.lat, this.lon]);

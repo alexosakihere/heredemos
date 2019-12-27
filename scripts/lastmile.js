@@ -1507,7 +1507,13 @@ class vertical_panel {
                if(active_tours==1 && in_pda==true) {
                 var cost_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Cost"});
                 if(delta_time!=0 || delta_distance!=0) {
-                    var delta_cost = "+$"+((Math.round(((tour_time+delta_time)/3600)*dcphr + ((tour_distance+(delta_distance*dfactor/1000))*dcpkm))) - (Math.round((tour_time/3600)*dcphr + (tour_distance*dcpkm))));
+                    var delta_cost = ((Math.round(((tour_time+delta_time)/3600)*dcphr + ((tour_distance+(delta_distance*dfactor/1000))*dcpkm))) - (Math.round((tour_time/3600)*dcphr + (tour_distance*dcpkm))));
+                    if(delta_cost>0) {
+                        delta_cost = "+$"+delta_cost;
+                    }
+                    else {
+                        delta_cost = "-$"+Math.abs(delta_cost);
+                    }
                     var delta_cost_data = $("<div />",{"class":"ufo_midbar_data_block","text":delta_cost});
                     $(delta_cost_data).css({"left": 20,"top":55});
                     $(this.midbar_sect).append(delta_cost_data);
@@ -1533,8 +1539,14 @@ class vertical_panel {
                     var dmins = (delta_time/3600) - parseFloat(dhours);
                     var dmins = Math.round(dmins*60);
      
-                    var dtstring = dhours+"h "+dmins+"m"
-                    var delta_time_data = $("<div />",{"class":"ufo_midbar_data_block","text":"+"+dtstring});
+                    var dtstring = dhours+"h "+dmins+"m";
+                    if(delta_time>0) {
+                        dtstring = "+"+dtstring;
+                    }
+                    else {
+                        dtstring = dtstring;
+                    }
+                    var delta_time_data = $("<div />",{"class":"ufo_midbar_data_block","text":dtstring});
                     $(delta_time_data).css({"left": 220,"top":55});
                     $(this.midbar_sect).append(delta_time_data);
                 }

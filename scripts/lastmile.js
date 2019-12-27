@@ -1264,6 +1264,38 @@ class ufo_dropdown {
     }
 }
 
+class pda_panel {
+    /*
+        Route summary, attached to a stop when 
+    */
+    constructor(args) {
+        this.stopid = args.stopid;
+        //this.tourid = args.tourid;
+        this.pdomel = "#marker_ufostop_"+args.stopid;
+        this.offset = args.offset;
+        this.create();
+    }
+
+    create() {
+        var spda_cont = $("<div />",{"class":"ufo_pda_stop"});
+        var ps = ufo_stops[this.stopid]; // Object containing the stop data.
+        $(spda_cont).css({"left":((this.offset*2)+15),"top":this.offset});
+        var ps_addr = $("<div />",{"class":"ufo_pda_stop_addr"});
+        ps_addr.append(ps.addr);
+
+        $(spda_cont).append(ps_addr);
+
+        var nstop_time = new Date(ps.eta_low*1000.0);
+        var nstop_string = nstop_time.getHours() + ":" + ("0"+nstop_time.getMinutes()).substr(-2);
+        nstop_time.setTime(nstop_time.getTime()+3600000);
+        var nfin_string = nstop_time.getHours() + ":" + ("0"+nstop_time.getMinutes()).substr(-2);
+        var nrange = $("<div />",{"class":"ufo_pda_stop_range","text":"Scheduled: "});
+        nrange.append("<span>"+nstop_string + "-" + nfin_string+"</span>");
+        $(spda_cont).append(nrange);
+        $(this.pdomel).append(spda_cont);
+    }
+}
+
 class vertical_panel {
 
     constructor(args) {
@@ -1926,6 +1958,7 @@ class ufo_stop {
         this.city = args.city;
         this.state = args.state;
         this.recipient = args.recipient;
+        this.signedby = args.signer; // This might not always be the recipient
         this.time = args.time;
         this.notes = args.notes;
         this.process = args.process_time; // How long does it take to complete this stop?
@@ -2017,8 +2050,6 @@ class ufo_stop {
                             $("#ufo_time_control").velocity({left:[735,60]},{duration:160});
                             assignments_panel.visible = true;
                             order_panel.visible = true;
-                            //assignments_panel.draw("ufo_tour click");
-                            //order_panel.draw("ufo_tour click");
                         }
                         e.data.arg1.position();
                         queuelist.push({"type":"map_finish",params:{caller:"ufo_stop"}});
@@ -2114,18 +2145,22 @@ class ufo_stop {
                     if(dmod<-0.05) { dmod = -.05; }
                     
                     $(icon).css({"border-width":"3","background-color":"rgba(106,109,116,.6)","border-color":"var(--herewhite)"});
+                    $(marker).children(".ufo_pda_stop").remove();
                     if(ufo_tours[this.tourid].stop_for_pda==this.uid) {
                         pos_offset = 16.0+(90.0*dmod);
+                        $(marker).css({ "z-index": 1500 });
+                        var spda = new pda_panel({"stopid":this.uid,"offset":pos_offset}); // Add the infobubble for the stop if the stop is active.
                     }
                     else {
                         pos_offset = 7.0+(60.0*dmod);
+                        $(marker).css({ "z-index": (pos_offset * 3) });
                     }
                     pos_vadjust = 0.0;
                     var origin = get_normalized_coord([this.lat, this.lon]);
                     var delta_y = origin[0] - normalized_origin[0];
                     var delta_x = origin[1] - normalized_origin[1];
                     icon.css({ width: 0.0, height: 0.0, backgroundSize: pos_offset * 2, borderRadius: pos_offset * 2, zIndex: pos_offset * 3 });
-                    marker.css({ zIndex: pos_offset * 3 });
+                    
                     var pleft = map_tile_offset_x + (delta_x * 512);
                     var ptop = map_tile_offset_y - pos_vadjust + (delta_y * 512);
                     //marker.css({ "left": pleft - pos_offset, "top": ptop - pos_offset });
@@ -3169,16 +3204,22 @@ function ufo_add_all_stops() {
         var inittime = new Date();
         inittime.setHours(stoptime[0]);
         inittime.setMinutes(stoptime[1]);
-        ufo_stops[i] = new ufo_stop({ uid: i, availablefrom:inittime.getTime()/1000|0, notes:stop.notes, process_time:stop.finish_time, endstate:stop.endstate, time:stop.time, lat: stop.lat, lon: stop.lon, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
+        if(stop.signer=="") {
+            var signer = stop.recipient;
+        }
+        else {
+            var signer = stop.signer;
+        }
+        ufo_stops[i] = new ufo_stop({ uid: i, availablefrom:inittime.getTime()/1000|0, signer:signer, notes:stop.notes, process_time:stop.finish_time, endstate:stop.endstate, time:stop.time, lat: stop.lat, lon: stop.lon, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
     }
     var stop = {"lat": 36.11179520406925,"lon": -115.2069771831083,"recipient": "Bobby Womack","addr": "3270 S Valley View Blvd","time":0,"availablefrom": "0:00","meta": [ "0kg"],"limits": { "timecritical": false, "refrigerated": false, "heavy": false, "fragile": false},"zip": "89102","city": "Las Vegas","state": "NV","country": "USA"}
     var stoptime = stop.availablefrom.split(":");
     var inittime = new Date();
     inittime.setHours(stoptime[0]);
     inittime.setMinutes(stoptime[1]);
-    ufo_depots[0] = new ufo_stop({ uid: "d0", availablefrom:inittime.getTime()/1000|0, notes:"",endstate:stop.endstate, process_time:0.0, time:stop.time, lat: stop.lat, lon: stop.lon, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
+    ufo_depots[0] = new ufo_stop({ uid: "d0", availablefrom:inittime.getTime()/1000|0, signer: "",notes:"",endstate:stop.endstate, process_time:0.0, time:stop.time, lat: stop.lat, lon: stop.lon, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
     ufo_depots[0].status = 1;
-    ufo_depots[1] = new ufo_stop({ uid: "w0", availablefrom:inittime.getTime()/1000|0, notes:"",endstate:stop.endstate, process_time:0.0, time:stop.time, lat: 36.07131485325218, lon: -115.2217393474679, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
+    ufo_depots[1] = new ufo_stop({ uid: "w0", availablefrom:inittime.getTime()/1000|0, signer:"",notes:"",endstate:stop.endstate, process_time:0.0, time:stop.time, lat: 36.07131485325218, lon: -115.2217393474679, addr: stop.addr, city:stop.city, zip:stop.zip, state:stop.state, limits: stop.limits, recipient: stop.recipient });
     ufo_depots[1].status = 1;
 }
 

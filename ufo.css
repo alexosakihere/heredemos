@@ -1283,3 +1283,43 @@ END PHONE CSS STYLES
     margin-top: 8px;
     font-style: italic;
 }
+
+/*
+
+    Styles for the PDA overlay attached to a single stop
+
+*/
+
+.ufo_pda_stop {
+    display: block;
+    width: 12em;
+    height: 4em;
+    background-color: var(--herewhite);
+    position: absolute;
+    border-radius: .2em;
+    border: .05em solid var(--herelightergrey);
+    box-shadow: .05em .1em .1em 0em var(--herelightgrey);
+}
+
+.ufo_pda_stop_addr {
+    font-family: FiraSansBook;
+    font-weight: 100;
+    color: var(--heremidgrey);
+    font-size: 11pt;
+    display: block;
+    position: absolute;
+    left: .5em;
+    top: .3em;
+}
+
+.ufo_pda_stop_range {
+    font-family: FiraSansBook;
+    font-size: 10pt;
+    position:absolute;
+    color: var(--heremidgrey);
+    left: .5em;
+    top: 1.3em;
+}
+.ufo_pda_stop_range span {
+    color: black;
+}

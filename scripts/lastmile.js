@@ -849,7 +849,7 @@ class ufo_action_button {
                 ufo_activate_stops({caller:"action_"+this.action});
                 order_panel.draw();
                 assignments_panel.draw();
-                map_finish();
+                queuelist.push({"type":"map_move_to","params":{"dcoord":[36.07131,-115.22173]}});
                 $("#ufo_icon_newjobs").show();
                 break;
             case "cancel":

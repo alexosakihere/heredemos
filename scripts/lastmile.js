@@ -2183,18 +2183,17 @@ class ufo_stop {
                     // So we're going to use a special icon representing the stop time.
                     $(icon).empty();
                     
-                    var dmod = (1.15-(this.process / 300.0)); // Ratio of stop process time to actual
-                    if(dmod<-0.05) { dmod = -.05; }
+                    var dmod = this.process / 300.0; // Ratio of stop process time to actual
                     
                     $(icon).css({"border-width":"3","background-color":"rgba(106,109,116,.6)","border-color":"var(--herewhite)"});
                     $(marker).children(".ufo_pda_stop").remove();
                     if(ufo_tours[this.tourid].stop_for_pda==this.uid) {
-                        pos_offset = 16.0+(90.0*dmod);
+                        pos_offset = 14.0**dmod;
                         $(marker).css({ "z-index": 1500 });
                         var spda = new pda_panel({"stopid":this.uid,"offset":pos_offset}); // Add the infobubble for the stop if the stop is active.
                     }
                     else {
-                        pos_offset = 7.0+(60.0*dmod);
+                        pos_offset = 7.0**dmod;
                         $(marker).css({ "z-index": 33 });
                     }
                     pos_vadjust = 0.0;

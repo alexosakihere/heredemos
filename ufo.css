@@ -434,7 +434,7 @@
     width: 31.25%;
     border-left: 1px solid var(--heremidgrey);
 }
-.ufo_current_time {
+.ufo_current_time,.ufo_newstops_time {
     left: 30%;
     top: 0px;
     bottom: 0px;
@@ -442,6 +442,12 @@
     background-color: var(--herebluegreen);
     display: block;
     position: absolute;
+}
+.ufo_newstops_time {
+    left: calc(43.75% - .1em);
+    width: .2em;
+    border: .1em solid var(--hereufomidblue);
+    background-color: var(--herewhite);
 }
 
 .here_logo {

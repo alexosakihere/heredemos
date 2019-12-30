@@ -1681,7 +1681,7 @@ class vertical_panel {
                 $("#top_icon_"+this.name).append(ufo_icons["tour_inprogress"]);
                 var breadcrumb = $("<div />",{"class":"ufo_panel_breadcrumb","id":"ufo_panel_breadcrumb_"+this.pid});
                 var icon_back = $("<div />",{"class":"ufo_breadcrumb_back"});
-                $(icon_back).on("click",function() {
+                $(breadcrumb).on("click",function() {
                     for(var i=0;i<ufo_tours.length;i++) {
                         ufo_tours[i].active = false;
                     }

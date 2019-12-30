@@ -48,9 +48,6 @@ class smartphone {
     }
 
     draw(caller) {
-        this.signinprogress = false;
-        this.activesignature = [];
-        this.signature = []; // Reset the signature process if we have to redraw.
         if(this.displaymode=="splash") {
             $("#ufo_phone_display").empty();
             $("#ufo_phone_display").append("<img src='./images/lm_splash.jpg' style='width:100%;'></img>");
@@ -130,6 +127,8 @@ class smartphone {
             $(complete).on("click",function() {
                 $("#ufo_phone_drawer_expand").velocity({left:["-20em","0em"]},{duration:100,complete:function() {
                     $("#ufo_phone_drawer_complete").show();
+                    ufo_phone.sign({"type":"mouseup"});
+                    ufo_phone.sign({"type":"mouseup"});
                 }})
             });
             var reject = $("<div />",{"class":"phone_job_reject"});
@@ -194,6 +193,16 @@ class smartphone {
             $("#ufo_phone_next_stop").append(expanded);
             $("#ufo_phone_next_stop").append(finish);
             this.current_stop = ufo_tours[this.tourid].current_stop;
+        }
+
+        // Moved to bottom so canvas is sized properly.
+        this.signinprogress = false;
+        this.activesignature = [];
+        if(this.current_stop!=-1) {
+            this.signature = ufo_stops[this.current_stop].signature; // Reset the signature process if we have to redraw.
+        }
+        else {
+            this.signature = [];
         }
     }
 
@@ -2024,6 +2033,7 @@ class ufo_stop {
         this.timestring = "";
         this.tstopidx; // Should store the path index of the stop.
         this.o_pos_offset = 0.0;
+        this.signature = []; // Array of points for drawing a signature.
         this.create();
         this.position();
         this.update_status();

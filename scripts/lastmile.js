@@ -2067,8 +2067,10 @@ class ufo_stop {
         else if(this.uid!="d0" && this.uid!="w0") {
 
             //$(icon).on("click",{arg1:this},function(e) { e.data.arg1.active=true; console.log(e.data.arg1.uid); });
-            
+            $(icon).on("mousedown",function(e) { e.stopPropagation; e.preventDefault; });
             $(icon).on("click",{arg1:this},function(e) {
+                e.stopPropagation();
+                e.preventDefault();
                 if(e.data.arg1.tourid!=-1) {
                     if(ufo_tours[e.data.arg1.tourid].status==4) {
                         if(ufo_tours[e.data.arg1.tourid].stop_for_pda == e.data.arg1.uid) {
@@ -2077,7 +2079,8 @@ class ufo_stop {
                         else {
                             ufo_tours[e.data.arg1.tourid].stop_for_pda = e.data.arg1.uid;
                         }
-                        queuelist.push({"type":"map_finish",params:{caller:"ufo_stop"}});
+                        queuelist.push({"type":"map_move_to","params":{dcoord:[e.data.arg1.lat,e.data.arg1.lon]}});
+                        //queuelist.push({"type":"map_finish",params:{caller:"ufo_stop"}});
                     }
                     else {
                         e.data.arg1.active = false;
@@ -2195,6 +2198,9 @@ class ufo_stop {
                     else {
                         pos_offset = 7.0**dmod;
                         $(marker).css({ "z-index": 33 });
+                    }
+                    if((this.actual-this.eta)>late_seconds) {
+                        $(icon).css({"border-color":"var(--herered)"});
                     }
                     pos_vadjust = 0.0;
                     var origin = get_normalized_coord([this.lat, this.lon]);
@@ -2583,7 +2589,7 @@ class ufo_stop {
         $(small_card).append(time_div);
 
         // Binding an action to "select" or "deselect" this card...
-        if(panel.pid!="assignments") {
+        if(panel.pid!="assignments" || this.status==4) {
             // Disable the selector if this card has been appended to the Assignments panel, so that we can't switch stops on and off from here.
             $(small_card).on("click", { arg1: this, arg2: panel }, function (e) { e.data.arg1.small_card_selector(e.data.arg2); });
         }
@@ -2623,9 +2629,23 @@ class ufo_stop {
             //$("#ufo_small_card"+this.uid).css({"background-color":"var(--hereufogrey)"})
         }
         else {
-            this.active = false;
-            this.selectedfrom = "";
-            this.position();
+            if(this.status==4) {
+                if(this.status==4) {
+                    if(ufo_tours[this.tourid].stop_for_pda == this.uid) {
+                        ufo_tours[this.tourid].stop_for_pda = -1;
+                    }
+                    else {
+                        ufo_tours[this.tourid].stop_for_pda = this.uid;
+                    }
+                    queuelist.push({"type":"map_finish",params:{caller:"ufo_stop"}});
+                }
+            }
+            else {
+                this.active = false;
+                this.selectedfrom = "";
+                this.position();
+            }
+            
             //$("#ufo_small_card"+this.uid).css({"background-color":"var(--herewhite)"})
         }
         panel.draw();

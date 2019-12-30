@@ -1525,11 +1525,14 @@ function map_finish(params) {
 		call_log(fname,caller);
 	}
 
-	var trans_x = (map_tile_offset_x-mcx);
-	var trans_y = (map_tile_offset_y-1024);
-	//console.log("Corrections: "+trans_x,trans_y);
-	$("#map_canvas").css({"transform":"translate3d("+trans_x+"px,"+trans_y+"px,0px)"});
-	$("#tracker_layer").css({transform:"translate3d(-0px,-0px,0px)"});
+
+		var trans_x = (map_tile_offset_x-mcx);
+		var trans_y = (map_tile_offset_y-1024);
+		//console.log("Corrections: "+trans_x,trans_y);
+		$("#map_canvas").css({"transform":"translate3d("+trans_x+"px,"+trans_y+"px,0px)"});
+		$("#tracker_layer").css({transform:"translate3d(-0px,-0px,0px)"});
+
+	
 	blocking_map=false;
 	blocking_queue=false;
 	mtiles = [];
@@ -1559,6 +1562,7 @@ function map_move_to(params) {
 	var alertdata = params.alertdata;
 	var caller = params.caller;
 	var after = params.after;
+	var timing = 300;
 	if(after==undefined) { after = dcoord; }
 	// After is a corrective offset so that the map center isn't misplaced after the sidebar is exposed.
 	var start_autoplay = params.start_autoplay;
@@ -1606,7 +1610,14 @@ function map_move_to(params) {
 		
 	}
 	blocking_queue = true;
-	$("#tracker_layer").velocity({"transform":["translate3d("+dx+"px,"+dy+"px,0px)","translate3d(0px,0px,0px)"]},{complete:move_to_complete});
+	if(target[0]==ncenter[0] && target[1]==ncenter[1]) {
+		$("#tracker_layer").css({"transform":"translate3d("+dx+"px,"+dy+"px,0px)"});
+		move_to_complete();
+	}
+	else {
+		$("#tracker_layer").velocity({"transform":["translate3d("+dx+"px,"+dy+"px,0px)","translate3d(0px,0px,0px)"]},{complete:move_to_complete});
+	}
+	
 }
 
 function map_zoom(params) {

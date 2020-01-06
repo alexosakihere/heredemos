@@ -5197,6 +5197,7 @@ function ufo_timechange(e) {
     console.log(pleft);
     if(pleft<90) {
         ufo_dispatch_drivers({reset:true});
+        $(".ufo_pda_stop").remove();
         ufo_opts["optimization"].current = 0;
         fleet_jobs_imported = false;
         fleet_solutions_calculated = false;

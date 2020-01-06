@@ -2151,7 +2151,19 @@ class ufo_stop {
                     }
                     fleetmode = "plan";
                     ufo_sidebar_icons();
-                    queuelist.push({"type":"draw_panels","params":{move_to_params:{dcoord:[36.1373,-115.1888],zdir:-1}}});
+                    if(assignments_panel.visible!=undefined) {
+                        if(assignments_panel.visible==true) {
+                            map_zlevel = 13;
+                            queuelist.push({"type":"map_move_to","params":{"dcoord":[36.1373,-115.1888],"zdir":-1}});
+
+                        }
+                        else {
+                            queuelist.push({"type":"draw_panels","params":{move_to_params:{dcoord:[36.1373,-115.1888],zdir:-1}}});
+                        }
+                    }
+                    else {
+                        queuelist.push({"type":"draw_panels","params":{move_to_params:{dcoord:[36.1373,-115.1888],zdir:-1}}});
+                    }
                     //queuelist.push({"type":"map_move_to","params":{});
                     //order_panel.draw();
                     //assignments_panel.draw();

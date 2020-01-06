@@ -759,7 +759,8 @@
     z-index: 500;
     width: 6em;
     height: .6em;
-    background-color: #000;
+    background-color: var(--heredarkgrey);
+    border: .1em solid var(--heredarkestgrey);
     border-radius: .3em;
 }
 

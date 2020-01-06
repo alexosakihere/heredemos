@@ -43,6 +43,7 @@ class smartphone {
     create() {
         // Initializes the general phone UI
         var pdom = $(this.parent);
+        $(pdom).append("<div class='ufo_phone_speaker'></div>");
         $(pdom).append("<div class='ufo_phone_innerframe'></div>");
         $(pdom).append("<div class='ufo_phone_display' id='ufo_phone_display'></div>");
     }

@@ -2409,8 +2409,8 @@ class ufo_stop {
             var delta_y = origin[0] - normalized_origin[0];
             var delta_x = origin[1] - normalized_origin[1];
             icon.css({ width: pos_offset * 2, height: pos_offset * 2, backgroundSize: pos_offset * 2, borderRadius: pos_offset * 2, zIndex: pos_offset * 3 });
-            if(this.hasrestrictions==true) {
-                marker.css({ zIndex: pos_offset * 5 });
+            if(this.hasrestrictions==true || this.active==true) {
+                marker.css({ zIndex: pos_offset * 15 });
             }
             else {
                 if(this.uid=="d0") {

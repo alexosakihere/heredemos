@@ -5218,6 +5218,7 @@ function ufo_timechange(e) {
         fleet_solutions_dispatched = false;
         for(var i=0;i<ufo_stops.length;i++) {
             ufo_stops[i].status = -1;
+            ufo_stops[i].signature= [];
             ufo_stops[i].active = false;
         }
         for(var i=0;i<ufo_tours.length;i++) {

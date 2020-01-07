@@ -2155,6 +2155,7 @@ class ufo_stop {
                     if(assignments_panel.visible!=undefined) {
                         if(assignments_panel.visible==true) {
                             map_zlevel = 13;
+                            queuelist.push({"type":"draw_panels","params":{}});
                             queuelist.push({"type":"map_move_to","params":{"dcoord":[36.1373,-115.1888],"zdir":-1}});
 
                         }

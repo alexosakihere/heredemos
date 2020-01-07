@@ -2973,6 +2973,7 @@ class ufo_tour {
                 }
 
 
+                queuelist.push({"type":"draw_panels","params":{}});
                 queuelist.push({"type":"map_move_to","params":{dcoord:npos}});
                 queuelist.push({"type":"ufo_activate_stops",params:{caller:"ufo_tour"}});
                 e.data.arg1.active=true;

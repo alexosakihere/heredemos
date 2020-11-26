@@ -1,2 +1,4 @@
 *.py
 *.kml
+scripts/covid.js
+scripts/covidfunctions.js

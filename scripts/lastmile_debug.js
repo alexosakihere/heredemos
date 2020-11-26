@@ -495,3 +495,109 @@ function paintlink() {
         ufo_draw_path({complex:true,paths:adjmap[lar[i]],width:2,color:"rgba(0,0,0,.9)"});
     }
 }
+
+function add_truck() {
+    ufo_draw_path({"caller":"fname","id":["truckroute"],"complex":false,color:"#467cd4"});
+    var start_svg = $("<div />");
+    var spos = get_normalized_coord(lastmile_paths["truckroute"][0]);
+    var dx = (mcx) + ((spos[1] - normalized_origin[1]) * 512);
+    var dy = (1024) + ((spos[0] - normalized_origin[0]) * 512);
+    $(start_svg).css({"background-image":"url(./images/start.svg","background-repeat":"no-repeat","background-size":"100%","display":"block","width":"32px","height":"48px","position":"absolute","left":dx-16,"top":dy-38});
+    var end_svg = $("<div />");
+    var fpos = get_normalized_coord(lastmile_paths["truckroute"][528]);
+    var dbx = (mcx) + ((fpos[1] - normalized_origin[1]) * 512);
+    var dby = (1024) + ((fpos[0] - normalized_origin[0]) * 512);
+    $(end_svg).css({"background-image":"url(./images/finish.svg","background-repeat":"no-repeat","background-size":"100%","display":"block","width":"32px","height":"48px","position":"absolute","left":dbx-16,"top":dby-38});
+
+    var truck_svg = $("<div />");
+    var tpos = get_normalized_coord(lastmile_paths["truckroute"][138]);
+    var dcx = (mcx) + ((tpos[1] - normalized_origin[1]) * 512);
+    var dcy = (1024) + ((tpos[0] - normalized_origin[0]) * 512);
+    $(truck_svg).css({"z-index":"500","background-image":"url(./images/truck.png","background-repeat":"no-repeat","background-size":"100%","background-color":"var(--hereufoblue)","display":"block","width":"40px","border-radius":"20px","height":"40px","position":"absolute","left":dcx-20,"top":dcy-20});
+
+    $("#map_canvas").append(start_svg);
+    $("#map_canvas").append(end_svg);
+    $("#map_canvas").append(truck_svg);
+    console.log(spos,dx,dy);
+}
+
+function add_final_route() {
+    var fins = ["m01","m02","m03","m04","m05","m06","m07","m08","m09","m10","m11","m12","m13","m14","m15","m16","m17","m18","m19","m20","m21"];
+    var fwdth = [0,0,25,25,25,25,30,24,35,64,25,32,52,40,50,45,40,65,50]
+    for(var i=0;i<fins.length;i++){
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#333333","width":4});
+    }
+    for(var i=0;i<3;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#06b87c","width":3});
+    }
+    for(var i=3;i<6;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#44ca9d","width":3});
+    }
+    for(var i=6;i<9;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#82dbbd","width":3});
+    }
+    for(var i=9;i<11;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#fbca40","width":3});
+    }
+    for(var i=11;i<14;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#fab800","width":3});
+    }
+    for(var i=14;i<16;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#f1894a","width":3});
+    }
+    for(var i=16;i<18;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#ec610e","width":3});
+    }
+    for(var i=18;i<20;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#c41c33","width":3});
+    }
+    for(var i=20;i<fins.length;i++) {
+        ufo_draw_path({"caller":"fname","id":[fins[i]],"complex":false,color:"#ec610e","width":3});
+    }
+    for(var i=2;i<fins.length-1;i++) {
+        var micon = $("<div />",{"class":"marker_icon"});
+        var tpos = get_normalized_coord(lastmile_paths[fins[i]][0]);
+        var dcx = (mcx) + ((tpos[1] - normalized_origin[1]) * 512);
+        var dcy = (1024) + ((tpos[0] - normalized_origin[0]) * 512);
+        $(micon).css({"z-index":"500","background-image":"none","border-color":"var(--herewhite)","border-width":"3px","background-color":"rgba(106,109,116,.6)","position":"absolute","width":fwdth[i],"height":fwdth[i],"left":dcx-6-(fwdth[i]/2),"top":dcy-6-(fwdth[i]/2)});
+        if(i==15) {
+            $(micon).append("<div class=\"ufo_pda_stop\" style=\"left: 56.966px; top: 20.983px;\"><div class=\"ufo_pda_stop_name\">Giuliana Galarza Quintanilla</div><div class=\"ufo_pda_stop_addr\">Calle Corregidor José Viciana, 10</div><div class=\"ufo_pda_stop_range\">Scheduled time: <span>9:30-10:30</span></div><div class=\"ufo_pda_stop_actual\">Actual: <span>9:56</span></div><div class=\"ufo_pda_stop_actual\">Signed by: <span>Giuliana Galarza</span></div><div class=\"ufo_pda_stop_range\">Projected job time: <span>5 minutes</span></div><div class=\"ufo_pda_stop_actual\">Actual job time: <span>5.8 minutes</span></div></div>");
+        }
+        $("#map_canvas").append(micon);
+    }
+
+    var tpos = get_normalized_coord(lastmile_paths[fins[1]][0]);
+    var dcx = (mcx) + ((tpos[1] - normalized_origin[1]) * 512);
+    var dcy = (1024) + ((tpos[0] - normalized_origin[0]) * 512);
+    $("#marker_ufostop_d0").css({"left":dcx-17,"top":dcy-18});
+    $("#map_canvas").append($("#marker_ufostop_d0"));
+
+    var tpos = get_normalized_coord(lastmile_paths[fins[0]][0]);
+    var dcx = (mcx) + ((tpos[1] - normalized_origin[1]) * 512);
+    var dcy = (1024) + ((tpos[0] - normalized_origin[0]) * 512);
+    $("#marker_ufostop_w0").css({"left":dcx-17,"top":dcy-17,"z-index":"500"});
+    $("#map_canvas").append($("#marker_ufostop_w0"));
+    //ec610e
+
+    /*
+                tcx.strokeStyle = "rgba(236,97,14,"+alpha+")"; // "#ec610e";
+            }
+            else if(tidx[i]>(max_delay*.5)) {
+                tcx.strokeStyle = "rgba(241,137,74,"+alpha+")"; // "#f1894a";
+            }
+            else if(tidx[i]>(max_delay*.33)) {
+                tcx.strokeStyle = "rgba(250,184,0,"+alpha+")"; // "#";
+            }
+            else if(tidx[i]>(max_delay*.25)) {
+                tcx.strokeStyle = "rgba(251,202,64,"+alpha+")"; // "#fbca40";
+            }
+            else if(tidx[i]>(max_delay*.16)) {
+                tcx.strokeStyle = "rgba(130,219,189,"+alpha+")"; // "#";
+            }
+            else if(tidx[i]>(max_delay*.08)) {
+                tcx.strokeStyle = "rgba(68,202,157,"+alpha+")"; // "#44ca9d";
+            }
+            else {
+                tcx.strokeStyle = "rgba(6,184,124,"+alpha+")"; // "#06b87c";
+    */
+}

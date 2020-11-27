@@ -1661,4 +1661,5 @@ STYLING FOR THE BOTTOM BAR
 	width: 25%;
 	height: 5%;
 	z-index: 999;
+	border: .0em solid var(--hereaqua);
 }

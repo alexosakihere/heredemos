@@ -63,6 +63,15 @@
 		var expanded_summary = false;
 		var scripts_remaining = 0;
 		var jsscripts = ["./scripts/lastmile.js","./scripts/data.js","./scripts/ship_routes.js","./scripts/stages_graph2.js","./scripts/trackerdata.js","./scripts/trackerlogic.js","./scripts/stories.js","./scripts/storylogic.js","./scripts/jquery-3.2.1.min.js","./scripts/velocity.min.js","./scripts/velocity.ui.js","./scripts/alive.js","./scripts/aliveassetdata.js","./scripts/alivegatedata.js","./scripts/alivejourneydata.js","./scripts/alive_charts.js","./scripts/jquery-ui.min.js","./scripts/jquery.ui.touch-punch.js"];
+		/*
+		
+		var raw_aliveroutedata = {};
+		var raw_alivejourneydata = {};
+		var raw_alivegates = {};
+		var raw_aliveassetdata = {};
+		*/
+
+//		var jsscripts = ["./scripts/lastmile.js","./scripts/data.js","./scripts/ship_routes.js","./scripts/stages_graph2.js","./scripts/trackerdata.js","./scripts/trackerlogic.js","./scripts/stories.js","./scripts/storylogic.js","./scripts/jquery-3.2.1.min.js","./scripts/velocity.min.js","./scripts/velocity.ui.js","./scripts/alive.js","./scripts/alive_charts.js","./scripts/jquery-ui.min.js","./scripts/jquery.ui.touch-punch.js"];
 		var graph_active = false;
 		var stages_active = false;
 		var blocking_map = false; //set true when the map is being redrawn to prevent cascading map draws
@@ -147,6 +156,8 @@
 			}
 		};
 
+		var asset_tracking_demo_stage = 0;
+
 		var msmap = {
 			"type":"container",
 			"type_plural":"containers",
@@ -206,6 +217,7 @@
 		<div class="side_menu_icon" style="display: none;" id="side_scenarios" onclick="map_data_context_switch({'mode':'scenarios','caller':'side_menu'})"></div>
 		<div class="side_menu_icon" id="side_routes" onclick="map_data_context_switch({'mode':'routes','caller':'side_menu'})"></div>
 		<div class="side_menu_icon" id="side_checkpoints" onclick="map_data_context_switch({'mode':'checkpoints','caller':'side_menu'})"></div>
+		<div class="side_menu_icon" id="side_asset_tracking" onclick="map_data_context_switch({'mode':'assets','caller':'side_menu'})"></div>
 		<div class="side_menu_icon" id="predef1" onclick="trigger_predef({'index':0,'caller':'side_menu'})"></div>
 		<div class="side_menu_icon" id="predef2" onclick="trigger_predef({'index':1,'caller':'side_menu'})"></div>
 		<div class="side_menu_icon" id="predef3" onclick="trigger_predef({'index':2,'caller':'side_menu'})"></div>

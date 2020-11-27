@@ -1165,7 +1165,6 @@ function alive_last() {
 }
 
 function alive_map(params) {
-
 	var fname = "alive_map";
     var caller = params.caller;
     var redraw = params.redraw;

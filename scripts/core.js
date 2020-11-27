@@ -780,6 +780,7 @@ function setup_finish() {
 	$("#side_scenarios").css({backgroundImage:"url('./images/icon_scenarios_grey.png')"});
 	$("#side_routes").css({backgroundImage:"url('./images/icon_routes_grey.png')"});
 	$("#side_checkpoints").css({backgroundImage:"url('./images/icon_checkpoints_grey.png')"});
+	$("#side_asset_tracking").css({backgroundImage:"url('./images/icon_asset_tracking_grey.png')"});
 	$("#predef1,#predef2,#predef3,#predef4").css({backgroundImage:"none"});
 	//$("#here_logo").css({top:(container_height-60)});
 	map_data_option_select({"context":current_map_context,"redraw":false,"caller":fname});
@@ -1824,10 +1825,11 @@ function map_data_context_switch(params) {
 	if(caller!=undefined) {
 		call_log(fname,caller);
 	}
-	if(mode==="routes" || mode==="checkpoints" || mode==="gate") {
+	if(mode==="routes" || mode==="checkpoints" || mode==="gate" || mode==="assets") {
 		$("#map_container").hide();
 		$(".map_zoom_in,.map_zoom_out,.map_data_selector,.map_time_control").hide();
 		$("#alive_container").show();
+		$("#alive_container").css({"background-color":"#f3f3f4"});
 		$("#here_logo").hide();
 	}
 	else {
@@ -1861,6 +1863,8 @@ function map_data_context_switch(params) {
 		$("#side_routes").css({borderLeftColor:"var(--heredarkgrey)"});		
 		$("#side_checkpoints").css({backgroundImage:"url('./images/icon_checkpoints_grey.png')"});
 		$("#side_checkpoints").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_asset_tracking").css({backgroundImage:"url('./images/icon_asset_tracking_grey.png')"});
+		$("#side_asset_tracking").css({borderLeftColor:"var(--heredarkgrey)"});
 	}
 	else if(mode==="devices") {
 		if(sidebar_active===false) {
@@ -1881,6 +1885,8 @@ function map_data_context_switch(params) {
 		$("#side_routes").css({borderLeftColor:"var(--heredarkgrey)"});
 		$("#side_checkpoints").css({backgroundImage:"url('./images/icon_checkpoints_grey.png')"});
 		$("#side_checkpoints").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_asset_tracking").css({backgroundImage:"url('./images/icon_asset_tracking_grey.png')"});
+		$("#side_asset_tracking").css({borderLeftColor:"var(--heredarkgrey)"});
 	}
 	else if(mode==="scenarios") {
 		if(sidebar_active===false) {
@@ -1898,6 +1904,8 @@ function map_data_context_switch(params) {
 		$("#side_routes").css({borderLeftColor:"var(--heredarkgrey)"});
 		$("#side_checkpoints").css({backgroundImage:"url('./images/icon_checkpoints_grey.png')"});
 		$("#side_checkpoints").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_asset_tracking").css({backgroundImage:"url('./images/icon_checkpoints_grey.png')"});
+		$("#side_asset_tracking").css({borderLeftColor:"var(--heredarkgrey)"});
 		story_list_all();
 	}
 	else if(mode==="routes") {
@@ -1917,6 +1925,8 @@ function map_data_context_switch(params) {
 		$("#side_routes").css({borderLeftColor:"#48dad0"});
 		$("#side_checkpoints").css({backgroundImage:"url('./images/icon_checkpoints_grey.png')"});
 		$("#side_checkpoints").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_asset_tracking").css({backgroundImage:"url('./images/icon_asset_tracking_grey.png')"});
+		$("#side_asset_tracking").css({borderLeftColor:"var(--heredarkgrey)"});
 		alive_panes("routes","list");
 	}
 	else if(mode==="checkpoints" || mode==="gate") {
@@ -1939,19 +1949,49 @@ function map_data_context_switch(params) {
 		$("#side_routes").css({borderLeftColor:"var(--heredarkgrey)"});
 		$("#side_checkpoints").css({backgroundImage:"url('./images/icon_checkpoints_white.png')"});
 		$("#side_checkpoints").css({borderLeftColor:"#48dad0"});
+		$("#side_asset_tracking").css({backgroundImage:"url('./images/icon_asset_tracking_grey.png')"});
+		$("#side_asset_tracking").css({borderLeftColor:"var(--heredarkgrey)"});
 		if(mode==="gate" && alive_active_gate!="") {
 			queue_push({"type":"alive_panes","params":{arg1:"gate",arg2:"list"}});
 		}
 		else {
-			if(alive_data_mode=="checkpoints") {
+			queue_push({"type":"alive_panes","params":{arg1:"checkpoints",arg2:"list"}});
+			// 26.11.2020 removing this mode
+			/*if(alive_data_mode=="checkpoints") {
 				alive_demo();
 				// If checkpoints is clicked when it's already active, then we show the canned demo.
 			}
-			else {
-				queue_push({"type":"alive_panes","params":{arg1:"checkpoints",arg2:"list"}});
-			}
 			
+			else {
+				
+			}
+			*/
 		}
+	}
+	else if(mode==="assets") {
+		$("#side_map").css({backgroundImage:"url('./images/icon_map_grey.png')"});
+		$("#side_map").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_devices").css({backgroundImage:"url('./images/icon_devices_grey.png')"});
+		$("#side_devices").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_geofences").css({backgroundImage:"url('./images/icon_geofences_grey.png')"});
+		$("#side_geofences").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_scenarios").css({backgroundImage:"url('./images/icon_scenarios_grey.png')"});
+		$("#side_scenarios").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_routes").css({backgroundImage:"url('./images/icon_routes_grey.png')"});
+		$("#side_routes").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_checkpoints").css({backgroundImage:"url('./images/icon_checkpoints_grey.png')"});
+		$("#side_checkpoints").css({borderLeftColor:"var(--heredarkgrey)"});
+		$("#side_asset_tracking").css({backgroundImage:"url('./images/icon_asset_tracking_white.png')"});
+		$("#side_asset_tracking").css({borderLeftColor:"#48dad0"});
+		if(active_tracker!="") {
+			tracker_select({"id":active_tracker,"caller":fname});
+		}
+		
+		if(sidebar_active===true) {
+			cycle_sidebar({"caller":fname});
+		}
+		asset_tracking_demo_stage = 0;
+		asset_tracking_demo(); // Lives in storylogic.js because it's basically a story.
 	}
 }
 

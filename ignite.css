@@ -4,22 +4,37 @@
     font-family:FiraSansBook;
     src:url(fonts/FiraSans-Book.eot);
     src:url(fonts/FiraSans-Book.eot?#iefix) format("embedded-opentype"),url(fonts/FiraSans-Book.woff) format("woff"),url(fonts/FiraSans-Book.ttf) format("truetype"),url(fonts/FiraSans-Book.svg#FiraSansBook) format("svg");
-    font-style:normal;
-    font-weight:400
+    /*font-style:normal;*/
+    /*font-weight:400*/
+}
+@font-face{
+    font-family:FiraGO;
+    src:url(fonts/FiraGO-Regular.otf);
+	font-weight: normal;
+}
+@font-face{
+    font-family:FiraGO;
+    src:url(fonts/FiraGO-Bold.otf);
+	font-weight: bold;
+}
+@font-face{
+    font-family:FiraGO;
+    src:url(fonts/FiraGO-Book.otf);
+	font-weight: 100;
 }
 @font-face{
     font-family:FiraSansLight;
     src:url(fonts/FiraSans-Light.eot);
     src:url(fonts/FiraSans-Light.eot?#iefix) format("embedded-opentype"),url(fonts/FiraSans-Light.woff) format("woff"),url(fonts/FiraSans-Light.ttf) format("truetype"),url(fonts/FiraSans-Light.svg#FiraSansLight) format("svg");
     font-style:normal;
-    font-weight:400
+    font-weight:100
 }
 @font-face{
     font-family:FiraSansCondensedBook;
     src:url(fonts/FiraSansCondensed-Book.eot);
     src:url(fonts/FiraSansCondensed-Book.eot?#iefix) format("embedded-opentype"),url(fonts/FiraSansCondensed-Book.woff) format("woff"),url(fonts/FiraSansCondensed-Book.ttf) format("truetype"),url(fonts/FiraSansCondensed-Book.svg#FiraSansCondensedBook) format("svg");
     font-style:normal;
-    font-weight:400
+    font-weight:500
 }
 
 :root {
@@ -44,10 +59,18 @@
 	--herepalegreen: #82dbbd;
 	--heregreen: #06b87c;
 	--hereufodarkblue: #467cd4;
+	--hereufoverydarkblue: #1d417c;
 	--hereufomidblue: #4080FF;
 	--herelavender: #b39cc9;
 	--hereyellow: #fab800;
 	--hereorange: #ec610e;
+	--hereufolightbluegrey: #F9FAFC;
+	--heregraphgreen: #71F386;
+	--heregraphred: #EA336C;
+	--heregraphblue: #4B7AD4;
+	--heregraphpurple: #6d60d2;
+	--hereufostopblue: #66A1D6;
+	
 }
 
 body,html {

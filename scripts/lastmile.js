@@ -617,6 +617,127 @@ class ufo_radio {
     }
 }
 
+class ufo_report {
+/*
+Builds a report for a given day.
+*/
+    constructor(args) {
+        this.offset_day = parseInt(args.offset);
+        this.tour_count = 0;
+        this.stop_count = 0;
+        this.delay_count = 0;
+        this.tour_planned = 0;
+        this.tour_actual = 0;
+        this.tour_cost = 0;
+        this.tour_distance = 0;
+        this.not_delivered_count = 0;
+        this.tours = [];
+        this.delay_reason = {};
+        this.create();
+    }
+
+    create() {
+        var r_seed = parseInt((parseFloat(get_random(this.offset_day,4))/10000.0)*5);
+        var r_offset = parseInt(get_random(this.offset_day,2));
+        var driver_assoc = {};
+        var driver_keys = Object.keys(ufo_driver_defs);
+        for(var i=0;i<driver_keys.length;i++) {
+            var key = parseInt(get_random(r_offset+(i*3),3));
+            driver_assoc[key] = driver_keys[i];
+        }
+        this.tour_count = 6+r_seed;
+        var driver_assoc_keys = Object.keys(driver_assoc).sort();
+        var base_delay = parseInt((parseFloat(get_random(this.offset_day+4,4))/10000.0)*40)-12; // Base traffic delay for all tours on this day 
+        console.log(driver_assoc_keys);
+        var total_distance = 0;
+        var total_time = 0;
+        var total_actual = 0;
+        var total_stops = 0;
+        var total_delays = 0;
+        var total_not_delivered = 0;
+        for(var i=0;i<6;i++) {
+            // There are 6 reasons something can be delayed, so initialize those reasons here.
+            this.delay_reason[i] = 0;
+        }
+        for(var i=0;i<this.tour_count;i++) {
+            var tour = {};
+            var d = new Date();
+            d.setHours(8);
+            var start_delay = parseInt((parseFloat(get_random(this.offset_day+i+17,2))/100.0)*15)-11;
+            d.setMinutes(start_delay);
+            time = d.getTime()/1000|0;
+            var tour_stops_a = parseInt((parseFloat(get_random(this.offset_day+i,2))/100.0)*9);
+            var tour_stops_b = parseInt((parseFloat(get_random(this.offset_day+i+5,2))/100.0)*14);
+            var tour_stops = 35+tour_stops_a+tour_stops_b;
+            var tour_planned_time = parseFloat(tour_stops) * 12.7; // Basic time in minutes for each stop
+            var tour_delay = parseInt((parseFloat(get_random(this.offset_day+4+i,4))/10000.0)*75)-32;
+            var tour_actual_time = start_delay + tour_planned_time + base_delay + tour_delay;
+            var num_incomplete_a = parseInt((parseFloat(get_random(this.offset_day+(2*i),2))/100.0)*7);
+            var num_incomplete_b = parseInt((parseFloat(get_random(this.offset_day+(3*i),2))/100.0)*5);
+            var num_incomplete = num_incomplete_a-num_incomplete_b;
+            var incompletes = [];
+            var delayed = 0;
+            var distance_offset = parseFloat((parseFloat(get_random(this.offset_day+(7*i),3))/1000.0)*12)-6.0;
+            var tour_distance = (tour_stops * 2.07)+distance_offset;
+            if(tour_actual_time-tour_planned_time>0) {
+                var delayed = parseInt((tour_actual_time-tour_planned_time)/12.7);
+            }
+            if(num_incomplete<0) { num_incomplete = 0; }
+            for(var j=0;j<num_incomplete;j++) {
+                var reason = parseInt((parseFloat(get_random(this.offset_day+(3*i)+(j*2),2))/100.0)*10);
+                if(reason==0 || reason==1) {
+                    incompletes.push(0)
+                    this.delay_reason[0]+=1;
+                }
+                else if(reason==2||reason==3) {
+                    incompletes.push(1);
+                    this.delay_reason[1]+=1;
+                }
+                else if(reason==4||reason==7) {
+                    incompletes.push(2);
+                    this.delay_reason[2]+=1;
+                }
+                else if(reason==5) {
+                    incompletes.push(3);
+                    this.delay_reason[3]+=1;
+                }
+                else if(reason==6) {
+                    incompletes.push(4);
+                    this.delay_reason[4]+=1;
+                }
+                else {
+                    incompletes.push(5);
+                    this.delay_reason[5]+=1;
+                }
+            }
+            var end_date = new Date(d.getTime() + tour_actual_time*60000);
+            tour["driver"] = driver_assoc[driver_assoc_keys[i]];
+            tour["stops"] = tour_stops + 3;
+            tour["tasks"] = tour_stops;
+            tour["planned"] = tour_planned_time;
+            tour["actual"] = tour_actual_time;
+            tour["incompletes"] = incompletes;
+            tour["delayed"] = delayed;
+            tour["distance"] = tour_distance;
+            tour["start"] = d;
+            tour["end"] = end_date;
+            total_distance += tour_distance;
+            total_time += tour_planned_time;
+            total_actual += tour_actual_time;
+            total_stops += tour_stops+3;
+            total_delays += delayed;
+            total_not_delivered += num_incomplete;
+            this.tours.push(tour);
+        }
+        this.tour_actual = total_actual;
+        this.tour_planned = total_time;
+        this.tour_distance = total_distance;
+        this.stop_count = total_stops;
+        this.delay_count = total_delays;
+        this.not_delivered_count = total_not_delivered;
+    }
+}
+
 class ufo_action_button {
     constructor(args) {
         this.start_hidden = args.start_hidden;
@@ -894,7 +1015,7 @@ class ufo_driver_dropdown {
             var cdiv = $("<div />",{"class":"ufo_driver_dropdown_header","text":ufo_tours[this.tour_id].driver});
         }
         else {
-            var cdiv = $("<div />",{"class":"ufo_driver_dropdown_header","text":"Assign driver automatically"});
+            var cdiv = $("<div />",{"class":"ufo_driver_dropdown_header","text":"Select driver"});
         }
         var dcaret = $("<div />",{"class":"ufo_driver_dropdown_caret","id":"driver_dropdown_icon_"+this.tour_id});
         $(dcaret).html(ufo_icons["chevron"]);
@@ -1013,7 +1134,8 @@ class ufo_dropdown {
         this.show_first = args.show_first;
         this.els = args.elements;
         this.actions = args.clickactions;
-        this.midbar = args.midbar;
+        this.midbar = args.midbar; // If "true", will show in the midbar
+        this.header = args.header; // If "true", will be a circular icon appearing in the header
         this.vars = args.vars;
         this.pid = args.parent;
         this.eid = "ufo_dropdown_" + this.pid.pid + "_" + args.id;
@@ -1032,28 +1154,48 @@ class ufo_dropdown {
     }
 
     create() {
-        var dparent = $("<div />", { "class": "ufo_dropdown", "id": this.eid });
-        var dparentcontainer = $("<div />", { "class": "ufo_dropdown_container" });
-        var d_el = $("<div />", { "class": "ufo_dropdown_el", "id": this.eid + "_0", "text": this.els[this.idx] });
+        if(this.header==true) {
+            var dparent = $("<div />", { "class": "ufo_circle_dropdown", "id": this.eid });
+            var dparentcontainer = $("<div />", { "class": "ufo_circle_dropdown_container" });
+            var right_marker = $("<div />", { "class": "ufo_circle_dropdown_icon" });
+        }
+        else {
+            var dparent = $("<div />", { "class": "ufo_dropdown", "id": this.eid });
+            var dparentcontainer = $("<div />", { "class": "ufo_dropdown_container" });
+            var right_marker = $("<div />", { "class": "ufo_dropdown_icon" });
+        }
+        if(this.eid=="ufo_dropdown_orders_show") {
+            var d_el = $("<div />", { "class": "ufo_dropdown_el_header", "id": this.eid + "_0", "text": "Show: "+this.els[this.idx] });
+        }
+        else {
+            var d_el = $("<div />", { "class": "ufo_dropdown_el_header", "id": this.eid + "_0", "text": this.els[this.idx] });
+        }
 
-        var right_marker = $("<div />", { "class": "ufo_dropdown_icon" });
         if (this.midbar == true) {
             // Forcing slight adjustment because midbar doesn't have a relative-positioned container
             $(dparent).css({ "width": "calc(100% - 40px)", "margin-top": "5px"});
             $(dparentcontainer).css({"background-color":"var(--hereufomidgrey)"});
             $(right_marker).css({ "top": "5px", "transform-origin": "50% 60%" });
         }
-        $(d_el).css({ "font-weight": "bold" });
+        //$(d_el).css({ "font-weight": "bold" });
         if (this.smallcard==true) {
             $(dparentcontainer).css({"position":"absolute","width":"120","border-color":"var(--herewhite)","background-color":"var(--herewhite)"});
             $(d_el).css({"font-size":"8pt","padding-left":"3px"});
             $(right_marker).css({"top":"6px","transform-origin":"50% 50%"});
         }
-        right_marker.append(ufo_icons["chevron"]);
-        $(dparentcontainer).append(right_marker);
+        if(this.header==true) {
+            right_marker.append(ufo_icons["ellipsis"]);
+            $(right_marker).on("click", { arg1: this }, function (e) { e.stopPropagation(); e.data.arg1.showhide(); });
+        }
+        else {
+            right_marker.append(ufo_icons["chevron"]);
+            $(d_el).on("click", { arg1: this }, function (e) { e.stopPropagation(); e.data.arg1.showhide(); });
+            $(dparent).append(d_el);
+        }
         this.icon = right_marker;
-        $(d_el).on("click", { arg1: this }, function (e) { e.stopPropagation(); e.data.arg1.showhide(); });
-        $(dparentcontainer).append(d_el);
+        
+        
+        $(dparent).append(right_marker);
 
         // The preceding section is because we will always show the selected element as the top element.
         for (var i = 0; i < this.els.length; i++) {
@@ -1080,23 +1222,37 @@ class ufo_dropdown {
     }
 
     showhide() {
-        var container = $("#" + this.eid).children(".ufo_dropdown_container")[0];
+        
 
-
-        if (this.open == false) {
-            this.open = true;
-            $("#" + this.eid).css({ "border": "none" });
-            $(this.icon).velocity({ "transform": ["rotate(180deg)", "rotate(0deg)"] }, { duration: 100 });
-            $(container).css({ "background-color": "#ffffff", "z-index": 150, "height": 27 + (this.els.length * 25), "border": "1px solid var(--herelightergrey)", "box-shadow": "rgba(0, 0, 0, 0.2) -.5px .5px .5px, rgba(0, 0, 0, 0.0) 0px 0px 0px inset" });
+        if (this.header==true) {
+            var container = $("#" + this.eid).children(".ufo_circle_dropdown_container")[0];
+            if (this.open == false) {
+                this.open = true;
+                $(container).css({ "background-color": "#ffffff", "z-index": 150, "height": ((this.els.length+1) * 25) - 27, "border": "0px solid var(--herelightergrey)", "box-shadow": "rgba(149, 151, 156, 0.2) -1px -.5px 1.5px 1px, rgba(149, 151, 156, 0.2) 1px .5px 1.5px 1px" });
+            }
+            else {
+                this.open = false;
+                this.update_strings();
+                $(container).css({ "background-color": tgtcolor, "z-index": 25, "height": 0, "border": "none", "box-shadow": "none" });
+            }
         }
         else {
-            this.open = false;
-            this.update_strings();
-            $(this.icon).velocity({ "transform": ["rotate(0deg)", "rotate(180deg)"] }, { duration: 100 });
-            $("#" + this.eid).css({ "border": "1px solid var(--herelightergrey)" });
-            var tgtcolor = "var(--herewhite)";
-            if(this.midbar==true) { tgtcolor = "var(--hereufomidgrey)"}
-            $(container).css({ "background-color": tgtcolor, "z-index": 25, "height": 23, "border": "none", "box-shadow": "none" });
+            var container = $("#" + this.eid).children(".ufo_dropdown_container")[0];
+            if (this.open == false) {
+                this.open = true;
+                $("#" + this.eid).css({ "border": "none" });
+                $(this.icon).velocity({ "transform": ["rotate(0deg)", "rotate(-90deg)"] }, { duration: 200 });
+                $(container).css({ "background-color": "#ffffff", "z-index": 150, "height": ((this.els.length+1) * 25) - 27, "border": "0px solid var(--herelightergrey)", "box-shadow": "rgba(149, 151, 156, 0.2) -1px -.5px 1.5px 1px, rgba(149, 151, 156, 0.2) 1px .5px 1.5px 1px" });
+            }
+            else {
+                this.open = false;
+                this.update_strings();
+                $(this.icon).velocity({ "transform": ["rotate(-90deg)", "rotate(0deg)"] }, { duration: 200 });
+                $("#" + this.eid).css({ "border": "0px solid var(--herelightergrey)" });
+                var tgtcolor = "var(--herewhite)";
+                if(this.midbar==true) { tgtcolor = "var(--hereufomidgrey)"}
+                $(container).css({ "background-color": tgtcolor, "z-index": 25, "height": 0, "border": "none", "box-shadow": "none" });
+            }
         }
     }
 
@@ -1111,6 +1267,7 @@ class ufo_dropdown {
             for (var k = 0; k < this.vars.length; k++) {
                 var replace_string = "";
                 if (this.vars[k] == "order_count") {
+                    // This is used to update the order count on the ORDER panel
                     //var active = active_orders();
                     var active = active_orders();
                     var valid = valid_orders();
@@ -1119,6 +1276,47 @@ class ufo_dropdown {
                     }
                     else {
                         replace_string = active + "/"+valid +" orders selected";
+                    }
+                    $(this.pid.summary_sect).empty();
+                    if(fleet_jobs_imported==true) {
+                        var summary_string = "Orders: " + valid + " | Selected: " + active;
+                        var selector = $("<div />",{"class":"ufo_summary_icon"});
+                        if(active > 0) {
+                            $(selector).css({"background-color":"var(--herebluegreen)","border-radius":"2px","border":"1px solid var(--herebluegreen)"});
+                            if(active==valid) {
+                                $(selector).on("click",{arg1:this},function(e) { e.data.arg1.action("unselect_all_orders")});
+                                $(selector).append(ufo_icons["check"]);
+                            }
+                            else {
+                                $(selector).on("click",{arg1:this},function(e) { e.data.arg1.action("select_all_orders")});
+                                $(selector).append(ufo_icons["minus"]);
+                            }
+                        }
+                        else {
+                            $(selector).on("click",{arg1:this},function(e) { e.data.arg1.action("select_all_orders")});
+                        }
+    
+                        $(this.pid.summary_sect).append(selector);
+                        $(this.pid.summary_sect).append(summary_string);
+                    }
+
+                }
+                else if (this.vars[k] == "ufo_status") {
+                    var valid = valid_orders();
+                    if(valid==0) {
+                        // So the tour plan has not yet started calculating.
+                        if(i==1 || i==this.els.length) {
+                            $(subel).removeClass("ufo_dropdown_el_invalid");
+                            $(subel).addClass("ufo_dropdown_el");
+                        }
+                        else {
+                            $(subel).removeClass("ufo_dropdown_el");
+                            $(subel).addClass("ufo_dropdown_el_invalid");
+                        }
+                    }
+                    else {
+                        $(subel).removeClass("ufo_dropdown_el_invalid");
+                        $(subel).addClass("ufo_dropdown_el");
                     }
                 }
                 else if (this.vars[k] == "tour_count") {
@@ -1133,7 +1331,12 @@ class ufo_dropdown {
                 d_el_string = d_el_string.replace("[" + k + "]", replace_string);
             }
             if (i == this.idx) {
-                $("#" + this.eid + "_0").text(d_el_string);
+                if(this.eid=="ufo_dropdown_orders_show") {
+                    $("#" + this.eid + "_0").text("Show: "+d_el_string);
+                }
+                else {
+                    $("#" + this.eid + "_0").text(d_el_string);
+                }
                 $(subel).css({ "font-weight": "bold" });
             }
             else {
@@ -1148,9 +1351,29 @@ class ufo_dropdown {
         
         this.open = true;
         this.showhide();
-        var avar = this.actions[val]; // Action variable (stored in the header)
+        if(parseInt(val)===val) {
+            var avar = this.actions[val]; // Action variable (stored in the header)
+        }
+        else {
+            var avar = val;
+        }
         debug(false,"called action: "+avar);
         switch(avar){
+            case "import_jobs":
+                if(fleet_jobs_imported==false) {
+                    for(var i=0;i<ufo_stops.length;i++) {
+                        ufo_stops[i].status = 0;
+                        ufo_stops[i].tourid = -1;
+                        ufo_stops[i].update_status(false);
+                    }
+                    debug(true,valid_orders() + " orders imported from stoplist");
+                    fleet_jobs_imported = true;
+                    map_finish();
+                    assignments_panel.draw();
+                    order_panel.draw();
+                }
+
+                break;
             case "select_all_orders":
                 if(fleet_jobs_imported==true) {
                     for(var i=0;i<ufo_stops.length;i++) {
@@ -1345,6 +1568,7 @@ class vertical_panel {
         this.icon = args.icon; // Icon to show
         this.header_sect;
         this.midbar_sect;
+        this.summary_sect;
         this.list_sect;
         this.dropdowns = []; // Stores the index for the dropdown
         this.actions = [];
@@ -1363,18 +1587,21 @@ class vertical_panel {
         var panetitle = $("<div />", { "class": "ufo_pane_title" });
         var paneicon = $("<div />", { "class": "ufo_smallpane_icon","id":"top_icon_"+this.name});
         var midbar = $("<div />", { "class": "ufo_pane_midbar" });
+        var summary = $("<div />", { "class": "ufo_pane_summarybar" });
         var button_shield = $("<div />",{"class":"ufo_pane_buttonframe"});
-        $(parent_div).append(button_shield);
-        $(paneicon).append(ufo_icons[this.icon]);
+        //$(parent_div).append(button_shield);
+        //$(paneicon).append(ufo_icons[this.icon]);
         $(panetitle).append(paneicon);
-        $(panetitle).append($("<span />", { "text": this.name }));
+        $(panetitle).append($("<span />", { "text": this.name,"id":this.pid+"_verticaltitle" }));
         $(header_div).append(panetitle);
         $(parent_div).append(header_div);
         $(parent_div).append(midbar);
+        $(parent_div).append(summary);
         $(parent_div).append(list_div);
         this.list_sect = list_div;
         this.header_sect = header_div;
         this.midbar_sect = midbar;
+        this.summary_sect = summary;
         $("#main_container").prepend(parent_div);
     }
 
@@ -1440,7 +1667,9 @@ class vertical_panel {
         }
         $(this.list_sect).empty();
         this.add_card_list();
-        if($("#ufo_time_control").css("left")=="60px") { $("#ufo_time_control").css({"left":735})}
+
+        // 23.11.2021 disabling resizing of the time control
+        //if($("#ufo_time_control").css("left")=="60px") { $("#ufo_time_control").css({"left":735})}
         blocking_queue=false;
     }
 
@@ -1453,6 +1682,7 @@ class vertical_panel {
         if(this.pid=="assignments") {
             if(fleet_solutions_calculated) {
                 $(this.midbar_sect).children(".ufo_dropdown").hide();
+                $(this.header_sect).children(".ufo_dropdown").show();
                 $(this.midbar_sect).children(".ufo_midbar_data_block").remove();
                 $(this.midbar_sect).children(".ufo_midbar_data_block_caption").remove();
                 /*
@@ -1494,10 +1724,9 @@ class vertical_panel {
                }
                console.log(active_tours);
                tour_distance = Math.round(tour_distance*dfactor/1000);
-               var active_tours_data = $("<div />",{"class":"ufo_midbar_data_block","text":tour_distance});
-               $(active_tours_data).css({"left": 120,"top":15});
+               var active_tours_data = $("<div />",{"class":"ufo_midbar_data_block","text":tour_distance+" KM","css":{"flex":"0 1 20%"}});
                if(active_tours==1 && in_pda==true) {
-                var active_tours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Km"});
+                //ar active_tours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Km"});
                 if(delta_distance!=0) {
                     var delta_tours_data = $("<div />",{"class":"ufo_midbar_data_block","text":"+"+(delta_distance*dfactor/1000).toFixed(2)});
                     $(delta_tours_data).css({"left": 120,"top":55});
@@ -1513,7 +1742,6 @@ class vertical_panel {
                tour_cost = "$"+Math.round((tour_time/3600)*dcphr + (tour_distance*dcpkm));
 
                var cost_data = $("<div />",{"class":"ufo_midbar_data_block","text":tour_cost});
-               $(cost_data).css({"left": 20,"top":15});
                if(active_tours==1 && in_pda==true) {
                 var cost_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Cost"});
                 if(delta_time!=0 || delta_distance!=0) {
@@ -1538,10 +1766,9 @@ class vertical_panel {
                var mins = (tour_time/3600) - parseFloat(hours);
                var mins = Math.round(mins*60);
 
-               var tstring = hours+"h "+mins+"m"
+               var tstring = hours+" h "+mins+" min"
 
                var hours_data = $("<div />",{"class":"ufo_midbar_data_block","text":tstring});
-               $(hours_data).css({"left": 220,"top":15});
                if(active_tours==1 && in_pda==true) {
                 var hours_caption = $("<div />",{"class":"ufo_midbar_data_block_caption","text":"Time"});
                 if(delta_time!=0) {
@@ -1568,17 +1795,34 @@ class vertical_panel {
                
                $(hours_caption).css({"left": 220,"top":35});
 
-               $(this.midbar_sect).append(active_tours_data);
-               $(this.midbar_sect).append(active_tours_caption);
                $(this.midbar_sect).append(cost_data);
-               $(this.midbar_sect).append(cost_caption);
+               $(this.midbar_sect).append(active_tours_data);
+               //$(this.midbar_sect).append(active_tours_caption);
+               //$(this.midbar_sect).append(cost_caption);
                $(this.midbar_sect).append(hours_data);
-               $(this.midbar_sect).append(hours_caption);
+               //$(this.midbar_sect).append(hours_caption);
             }
             else {
-                $(this.midbar_sect).children(".ufo_midbar_data_block").remove();
-                $(this.midbar_sect).children(".ufo_midbar_data_block_caption").remove();
-                $(this.midbar_sect).children(".ufo_dropdown").show();
+                if(fleet_solutions_dispatched==true) {
+                    $(this.midbar_sect).children(".ufo_dropdown").hide();
+                    $(this.header_sect).children(".ufo_dropdown").show();
+                    $(this.midbar_sect).children(".ufo_midbar_data_block").remove();
+                    $(this.midbar_sect).children(".ufo_midbar_data_block_caption").remove();
+                    var active_tours_data = $("<div />",{"class":"ufo_midbar_data_block","text":"0 KM","css":{"flex":"0 1 20%"}});
+                    var cost_data = $("<div />",{"class":"ufo_midbar_data_block","text":"$0"});
+                    var hours_data = $("<div />",{"class":"ufo_midbar_data_block","text":"0 min"});
+                    $(this.midbar_sect).append(cost_data);
+                    $(this.midbar_sect).append(active_tours_data);
+                    //$(this.midbar_sect).append(active_tours_caption);
+                    //$(this.midbar_sect).append(cost_caption);
+                    $(this.midbar_sect).append(hours_data);
+                }
+               else {
+                    $(this.midbar_sect).children(".ufo_dropdown").show();
+                    $(this.header_sect).children(".ufo_dropdown").show();
+                    $(this.midbar_sect).children(".ufo_midbar_data_block").remove();
+                    $(this.midbar_sect).children(".ufo_midbar_data_block_caption").remove();
+               }
             }
         }
     }
@@ -1601,7 +1845,8 @@ class vertical_panel {
         var show_first = params.show_first;
         var els = params.elements;
         var id = params.id;
-        var midbar = params.midbar;
+        var midbar = params.midbar; // Should this appear in the midbar?
+        var header = params.header; // Should this appear in the header?
         var vars = params.vars;
         var clickactions = params.clickactions;
         if (params.show_first == undefined) {
@@ -1613,7 +1858,7 @@ class vertical_panel {
         if (params.vars == undefined) {
             vars = [];
         }
-        var dropdown = new ufo_dropdown({ show_first: show_first, midbar: midbar, id: id, elements: els, parent: this, vars: vars, clickactions: clickactions });
+        var dropdown = new ufo_dropdown({ show_first: show_first, midbar: midbar, header:header, id: id, elements: els, parent: this, vars: vars, clickactions: clickactions });
         this.dropdowns.push(dropdown);
 
     }
@@ -1673,6 +1918,7 @@ class vertical_panel {
                         show_single_tour = i;
                     }
                 }
+
             }
             for(var i=0;i<ufo_later_stops.length;i++) {
                 if(ufo_stops[ufo_later_stops[i]].active==true && ufo_stops[ufo_later_stops[i]].status==0) {
@@ -1680,17 +1926,52 @@ class vertical_panel {
                 }
             }
             if(show_single_tour==-1) {
-                $("#top_icon_"+this.name).empty();
-                $("#top_icon_"+this.name).append(ufo_icons[this.icon]);
+                $("#"+this.pid+"_verticaltitle").text(this.name);
+                $("#"+this.pid+"_verticaltitle").css({"margin-left":"0px"});
+                //$("#top_icon_"+this.name).empty();
+                //$("#top_icon_"+this.name).append(ufo_icons[this.icon]);
+                $(".ufo_panel_driver_summary").remove();
                 for (var i = 0; i < ufo_tours.length; i++) {
                     ufo_tours[i].add_small_card(this);
                 }
+
+
+
+                if(fleet_jobs_imported==true) {
+                    $(this.summary_sect).empty();
+                    var active = assignments_panel.selected_count;
+                    if(fleet_solutions_dispatched==false) {
+                        var summary_string = "Available: " + active;
+                        var selector = $("<div />",{"class":"ufo_summary_icon"});
+                        if(active > 0) {
+                            $(selector).css({"background-color":"var(--herebluegreen)","border-radius":"2px","border":"1px solid var(--herebluegreen)"});
+                            if(active==ufo_tours.length) {
+                                $(selector).on("click",{arg1:this},function(e) { assignments_panel.dropdowns[0].action("unselect_all_vehicles")});
+                                $(selector).append(ufo_icons["check"]);
+                            }
+                            else {
+                                $(selector).on("click",{arg1:this},function(e) { assignments_panel.dropdowns[0].action("select_all_vehicles")});
+                                $(selector).append(ufo_icons["minus"]);
+                            }
+                        }
+                        else {
+                            $(selector).on("click",{arg1:this},function(e) { assignments_panel.dropdowns[0].action("select_all_vehicles")});
+                        }
+    
+                        $(this.summary_sect).append(selector);
+                        $(this.summary_sect).append(summary_string);
+                    }
+                }
             }
             else {
-                $("#top_icon_"+this.name).empty();
-                $("#top_icon_"+this.name).append(ufo_icons["tour_inprogress"]);
+                //$("#top_icon_"+this.name).empty();
+                //$("#top_icon_"+this.name).append(ufo_icons["tour_inprogress"]);
+                $("#"+this.pid+"_verticaltitle").text(ufo_tours[show_single_tour].driver);
+                $("#"+this.pid+"_verticaltitle").css({"margin-left":"30px"});
+                $(".ufo_panel_driver_summary").remove();
+                var driver_summary = $("<div />",{"class":"ufo_panel_driver_summary"});
                 var breadcrumb = $("<div />",{"class":"ufo_panel_breadcrumb","id":"ufo_panel_breadcrumb_"+this.pid});
-                var icon_back = $("<div />",{"class":"ufo_breadcrumb_back"});
+                $(this.header_sect).children(".ufo_dropdown").hide();
                 $(breadcrumb).on("click",function() {
                     for(var i=0;i<ufo_tours.length;i++) {
                         ufo_tours[i].active = false;
@@ -1705,9 +1986,15 @@ class vertical_panel {
                     assignments_panel.draw("add_card_list()");
                     map_finish();
                 })
-                $(breadcrumb).append(icon_back);
-                $(breadcrumb).append("<span>Tours</span> / <span>Tour "+(show_single_tour+1)+"</span> /");
+                var green_chevron = ufo_icons["chevron"];
+                green_chevron = green_chevron.replace("class=\"st1\"","\" style=\"fill:var(--hereaqua)\"");
+                $(breadcrumb).append(green_chevron);
                 $("#ufo_parent_"+this.pid).append(breadcrumb);
+                $("#ufo_header_"+this.pid).append(driver_summary);
+                $(this.summary_sect).empty();
+                var summary_string = "Stops: " + ufo_tours[show_single_tour].stops.length;
+                $(this.summary_sect).append(summary_string);
+                ufo_depots[0].add_small_card(this);
                 for(var i=0;i<ufo_tours[show_single_tour].stops.length;i++) {
                     ufo_stops[ufo_tours[show_single_tour].stops[i]].add_small_card(this);
                 }
@@ -2010,6 +2297,7 @@ class ufo_stop {
         this.city = args.city;
         this.state = args.state;
         this.recipient = args.recipient;
+        this.u_uid = ""; // Job UID, will be automatically created.
         this.signedby = args.signer; // This might not always be the recipient
         this.time = args.time;
         this.notes = args.notes;
@@ -2039,6 +2327,7 @@ class ufo_stop {
         this.position();
         this.update_status();
         this.build_adjacencies();
+        this.generate_job_id();
     }
 
     create() {
@@ -2065,10 +2354,10 @@ class ufo_stop {
                     }
                 }
             }
-            this.timestring = tstring + " | Today";
+            this.timestring = tstring;
         }
         else {
-            this.timestring = "9:00-16:00 | Today"
+            this.timestring = "9:00-16:00";
         }
 
 
@@ -2103,7 +2392,8 @@ class ufo_stop {
                         if(assignments_panel.visible==false) {
                             fleetmode = "plan";
                             ufo_sidebar_icons();
-                            $("#ufo_time_control").velocity({left:[735,60]},{duration:160});
+                            // 23.11.2021 disabling resizing of the time control
+                            //("#ufo_time_control").velocity({left:[735,60]},{duration:160});
                             assignments_panel.visible = true;
                             order_panel.visible = true;
                         }
@@ -2186,11 +2476,35 @@ class ufo_stop {
         $("#tracker_layer").append(marker);
     }
 
+    generate_job_id() {
+        var anum = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+        var bnum = ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"];
+        var cnum = ["0","1","2","3","4","5","6","7","8","9"];
+        var uid = "";
+        
+        for(var i=0;i<1;i++) {
+            var idx = Math.floor(Math.random() * anum.length);
+            uid = uid + anum[idx];
+        }
+        uid = uid +"-";
+        for(var i=0;i<6;i++) {
+            var idx = Math.floor(Math.random() * cnum.length);
+            uid = uid + cnum[idx];
+        }
+        uid = uid +"-";
+        for(var i=0;i<2;i++) {
+            var idx = Math.floor(Math.random() * bnum.length);
+            uid = uid + bnum[idx];
+        }
+
+        this.u_uid = uid;
+    }
+
     position() {
         /*
             Adjusts the marker div icon based on the current map zoom and position.
         */
-        var pos_offset = 7;
+        var pos_offset = 9;
         // This is set to half the width of the marker icon; marker icon is larger if the stop is active
         var marker = $("#marker_" + this.eid);
         var icon = $(marker).children(".marker_icon");
@@ -2250,19 +2564,23 @@ class ufo_stop {
                     // This means the specified tour is in progress (probably) but not complete
                     // So we need to communicate delay factors, etc.
                     icon.empty();
-                    pos_offset = 20;
-                    $(icon).css({"border-width":"0"});
-                    $(icon).css({ "background-color": "" });
+                    pos_offset = 12;
+                    $(icon).addClass("marker_icon_stop");
+                    $(icon).css({"border-width":".5px"});
+                    $(icon).css({"border-color":"var(--heremidgrey)"});
+                    $(icon).css({ "background-color": "var(--hereufostopblue)" });
                     if(this.status==4) {
                         if(this.endstate=="delivered") {
-                            icon.html(ufo_icons["destination_finished"]);
-                            var flagdiv = $("<div />",{"class":"ufo_flag_d","text":""});
-                            $(flagdiv).append(ufo_icons["check"]);
+                            //icon.html(ufo_icons["destination_finished"]);
+                            //var flagdiv = $("<div />",{"class":"ufo_flag_d","text":""});
+                            //$(flagdiv).append(ufo_icons["check"]);
+                            $(icon).css({ "background-color": "var(--hereufodarkblue)" });
                         }
                         else {
-                            icon.html(ufo_icons["destination_finished"]);
-                            var flagdiv = $("<div />",{"class":"ufo_flag_e","text":""});
-                            $(flagdiv).append(ufo_icons["cross"]);
+                            //icon.html(ufo_icons["destination_finished"]);
+                            //var flagdiv = $("<div />",{"class":"ufo_flag_e","text":""});
+                            //$(flagdiv).append(ufo_icons["cross"]);
+                            $(icon).css({ "background-color": "var(--heregraphred)" });
                         }
                         $(icon).append(flagdiv);
                     }
@@ -2271,22 +2589,24 @@ class ufo_stop {
                     }
                     else {
                         if(this.late==true) {
-                            icon.html(ufo_icons["destination_late"]);
+                            $(icon).css({ "background-color": "var(--hereyellow)" });
+                            //icon.html(ufo_icons["destination_late"]);
                         }
                         else {
-                            icon.html(ufo_icons["destination"]);
+                            $(icon).css({ "background-color": "var(--hereufostopblue)" });
+                            //icon.html(ufo_icons["destination"]);
                         }
                     }
                     
                     var seqdiv = $("<div />",{"class":"ufo_sequence_label","text":this.toursequence});
-                    pos_vadjust = 18.0;
+                    pos_vadjust = 6.0;
                     icon.append(seqdiv);
                 }
                 
             }
             else {
                 // Situation. The stop is activated (so should be highlighted) but isn't part of a tour.
-                pos_offset = 10;
+                pos_offset = 12;
                 if(fleet_solutions_dispatched==true && this.late==false) { $(icon).hide(); return; }
                 $(icon).css({"border-width":"1"});
                 $(icon).css({"border-color":"var(--herewhite)"});
@@ -2377,6 +2697,8 @@ class ufo_stop {
         }
         else {
             icon.empty();
+            $(icon).append(ufo_icons["backarrow"].replace("0F1621","FFFFFF"));
+            $(icon).addClass("marker_icon_stop");
             if(fleet_solutions_dispatched==true && (this.late==false || (this.late==true && this.tourid!=-1))) { $(icon).hide(); return; }
             $(icon).css({"border-width":"1"});
             if(this.status==0) { $(icon).css({ "background-color": ufo_colors["unassigned_bg"],"border-color":"var(--herelightgrey)" }); }
@@ -2564,7 +2886,14 @@ class ufo_stop {
          */
         if(this.availablefrom > time) { return; }
         var small_card = $("<div />", { "class": "ufo_small_card_div", "id": "ufo_small_card" + this.uid });
-        var small_card_icon = $("<div />",{"class":"ufo_small_card_icon"});
+        var uid_div = $("<div />", { "class": "ufo_small_uid", "text": "ID: "+this.u_uid });
+        var address_div = $("<div />", { "class": "ufo_small_address"});
+        var type_div = $("<div />", { "class": "ufo_small_card_type"});
+        var trunc_addr = this.addr;
+        if(trunc_addr.length>12) {
+            trunc_addr = trunc_addr.substr(0,12) + "...";
+        }
+        $(address_div).html("<strong>"+this.zip+"</strong><span class=\"ufo_small_address_divider\">|</span><strong>"+trunc_addr+"</strong>");
         var title_div = $("<div />", { "class": "ufo_small_title", "text": this.recipient });
         var time_div = $("<div />", { "class": "ufo_small_details" });
         if (this.limits.timecritical == true) {
@@ -2575,24 +2904,71 @@ class ufo_stop {
         }
         var status_div = $("<div />", { "class": "ufo_small_status" });
         $(status_div).append(this.status_string);
+        $(type_div).append(ufo_icons["backarrow"]);
         if(panel.pid!="assignments") {
+            var small_card_icon = $("<div />",{"class":"ufo_small_card_icon"});
             /*
              * Even if this stop is active, if it's being appended to the ASSIGNMENTS panel then we don't shade it 
              */
             if (this.active == true) {
                 $(small_card).css({ "background-color": "var(--hereufolightblue)" });
                 $(small_card_icon).append(ufo_icons["check"]);
-                $(small_card_icon).css({"background-color":"var(--herebluegreen","border-radius":"2px"});
+                $(small_card_icon).css({"background-color":"var(--herebluegreen)","border-radius":"2px","border":"1px solid var(--herebluegreen)"});
             }
             else {
-                $(small_card_icon).append(ufo_icons["link"]);
+                $(small_card_icon).css({"background-color":"var(--herewhite)","border-radius":"2px","border":"1px solid var(--herelightgrey)"});
+                //$(small_card_icon).append(ufo_icons["square"]);
             }
+            $(small_card).append(small_card_icon);
+            $(small_card).append(status_div);
+            $(small_card).append(uid_div);
+            $(small_card).append(address_div);
+            $(small_card).append(title_div);
+            $(small_card).append(time_div);
+            $(small_card).append(type_div);
         }
         else {
-            $(small_card_icon).css({"font-size":"9pt","font-weight":"bold","top":"16","width":"24px","height":"24px","border-radius":"50%","background-color":"var(--hereufoblue","color":"var(--herewhite)","text-align":"center","line-height":"24px"});
-            $(small_card_icon).append(this.toursequence);
-            $(title_div).text(this.addr);
-            var eta_delay = parseFloat(ufo_tours[this.tourid].delay);
+            $(small_card).removeClass("ufo_small_card_div");
+            $(small_card).addClass("ufo_small_card_stop_div");
+            $(title_div).removeClass("ufo_small_title");
+            $(title_div).addClass("ufo_small_stop_title");
+            $(uid_div).removeClass("ufo_small_uid");
+            $(uid_div).addClass("ufo_small_stop_uid");
+            $(address_div).removeClass("ufo_small_address");
+            $(address_div).addClass("ufo_small_stop_address");
+            $(address_div).text(this.recipient);
+            var subtitle_div = $("<div />",{"class":"ufo_small_stop_subtitle"});
+            $(subtitle_div).append(this.zip+" "+this.city);
+            var small_card_icon = $("<div />",{"class":"ufo_small_card_stop_icon"});
+            //$(small_card_icon).css({"font-size":"9pt","font-weight":"bold","top":"16","width":"24px","height":"24px","border-radius":"50%","background-color":"var(--hereufoblue","color":"var(--herewhite)","text-align":"center","line-height":"24px"});
+            $(small_card_icon).css({"font-size":"9pt","font-weight":"bold","top":"16","color":"var(--hereufodarkblue)","line-height":"24px"});
+            if(this.uid=="d0") {
+                $(title_div).text("Leave depot");
+                $(title_div).css({"margin-top":"6px","margin-bottom":"12px"});
+                $(small_card_icon).append(ufo_icons["destination"]);
+                var depotspan = $("<span />");
+                $(depotspan).css({"position":"relative","left":"4px","top":"3px","width":"22px","height":"19px","z-index":"4"});
+                $(depotspan).append(ufo_icons["depot"]);
+                $(small_card_icon).append(depotspan);
+            }
+            else {
+                $(title_div).text(this.addr);
+                $(small_card_icon).append(ufo_icons["destination_invert"]);
+            }
+            var toursequence_id = $("<span />");
+            $(toursequence_id).append(this.toursequence);
+            $(small_card_icon).append(toursequence_id);
+            if(this.tourid!=-1) {
+                var eta_delay = parseFloat(ufo_tours[this.tourid].delay);
+            }
+            else {
+                var eta_delay = 0.0;
+                for(var i=0;i<ufo_tours.length;i++) {
+                    if(ufo_tours[i].active==true) {
+                        eta_delay = parseFloat(ufo_tours[i].delay);
+                    }
+                }
+            }
             var sched_time = new Date((this.eta)*1000.0);
             var sched_time_string = sched_time.getHours() + ":" + ("0"+sched_time.getMinutes()).substr(-2);
             var sched_time_string_with_delay = $("<span />");
@@ -2603,19 +2979,34 @@ class ufo_stop {
             }
             $(time_div).text(sched_time_string);
             $(time_div).append(sched_time_string_with_delay);
+            if(this.uid=="d0" || this.uid=="w0") {
+                // Don't put all elements on page if this is just the depot card
+                $(small_card).append(small_card_icon);
+                $(small_card).append(title_div);
+                $(small_card).append(time_div);
+                $(small_card).append(type_div);
+            }
+            else {
+                $(small_card).append(small_card_icon);
+                $(small_card).append(status_div);
+                $(small_card).append(title_div);
+                $(small_card).append(subtitle_div);
+                $(small_card).append(address_div);
+                $(small_card).append(uid_div);
+                $(small_card).append(time_div);
+                $(small_card).append(type_div);
+            }
+
         }
 
         
 
-        $(small_card).append(small_card_icon);
-        $(small_card).append(status_div);
-        $(small_card).append(title_div);
-        $(small_card).append(time_div);
+
 
         // Binding an action to "select" or "deselect" this card...
         if(panel.pid!="assignments" || this.status==4) {
             // Disable the selector if this card has been appended to the Assignments panel, so that we can't switch stops on and off from here.
-            $(small_card).on("click", { arg1: this, arg2: panel }, function (e) { e.data.arg1.small_card_selector(e.data.arg2); });
+            $(small_card_icon).on("click", { arg1: this, arg2: panel }, function (e) { e.data.arg1.small_card_selector(e.data.arg2); });
         }
         if(this.active==false) {
             $(small_card).on("mouseover", { arg1: this, arg2: small_card }, function (e) { 
@@ -2842,10 +3233,10 @@ class ufo_tour {
             var astime = 0.0; // Actual stop time (might be different);
             if(p==0) {
                 // If p is 0, then we end the path at the depot. So we need to add 20 minutes of delay.
-                subloctime+=1200;
-                traffictime+=1200;
-                stime = 1200.0;
-                for(var k=0;k<20/res;k++) {
+                subloctime+=3300;
+                traffictime+=3300;
+                stime = 3300.0;
+                for(var k=0;k<55/res;k++) {
                     this.ipath.push(lastmile_nodes[819]); // Hardcoded because 819 is the depot.
                     this.tidx.push(tconst);
                 }
@@ -2928,7 +3319,8 @@ class ufo_tour {
         $(icon).on("click",{arg1:this},function(e) {
             ufo_force_stops_update = true;
             if(assignments_panel.visible==false && ufo_phone.visible==false) {
-                $("#ufo_time_control").velocity({left:[735,60]},{duration:160});
+                // 23.11.2021 disabling resizing of the time control
+                // $("#ufo_time_control").velocity({left:[735,60]},{duration:160});
                 assignments_panel.visible = true;
                 order_panel.visible = true;
                 //assignments_panel.draw("ufo_tour click");
@@ -3004,7 +3396,7 @@ class ufo_tour {
          * 
          */
         var small_card = $("<div />", { "class": "ufo_small_card_div", "id": this.small_card_id });
-        var small_card_icon = $("<div />",{"class":"ufo_small_card_icon"}); // This icon can be a person, a van, or a tour
+        var small_card_icon = $("<div />",{"class":"ufo_small_card_vehicle_icon"}); // This icon can be a person, a van, or a tour
         if (this.active == true) {
             $(small_card).css({ "background-color": "var(--hereufolightblue)" });
         }
@@ -3012,29 +3404,53 @@ class ufo_tour {
         if(this.status>2) {
             // status 2 = driver assigned, so at that point we have a valid driver to use.
             $(small_card_icon).append(ufo_icons["tour_inprogress"]);
-            $(small_card_icon).append("<span>"+(this.uid+1)+"</span>");
-            var title_div = $("<div />", { "class": "ufo_small_title", "text": this.driver });
-        }
-        else if(this.status==1 || this.status==2) {
-            if(this.status==2) {
-                $(small_card_icon).append(ufo_icons["tour_planned"]);
-            }
-            else {
-                $(small_card_icon).append(ufo_icons["person"]);
-            }
-            
-            var title_div = $("<div />", { "class": "ufo_small_title", "text": "NO DRIVER" });
-            var driver_dropdown = new ufo_driver_dropdown({tour_id:this.uid});
-            $(title_div).html(driver_dropdown.domel);
+            //$(small_card_icon).append("<span>"+(this.uid+1)+"</span>");
+            var title_div = $("<div />", { "class": "ufo_small_driver_title", "text": this.driver });
         }
         else {
-            $(small_card_icon).append(ufo_icons["van"]);
-            var title_div = $("<div />", { "class": "ufo_small_title", "text": ufo_vehicles[this.vehicle].name });
+            var title_div = $("<div />", { "class": "ufo_small_driver_title", "text": "NO DRIVER" });
+            var driver_dropdown = new ufo_driver_dropdown({tour_id:this.uid});
+            if(this.active==true) {
+                $(small_card_icon).css({"background-color":"var(--herebluegreen)","border-radius":"2px","border":"1px solid var(--herebluegreen)"});
+                $(small_card_icon).append(ufo_icons["check"]);
+            }
+            else {
+                if(this.status==2) {
+                    $(small_card_icon).append(ufo_icons["tour_planned"]);
+                }
+                else if(this.status==1){
+                    $(small_card_icon).append(ufo_icons["person"]);
+                }
+                else {
+                    var vehicle_type = ufo_vehicle_defs[ufo_vehicles[this.vehicle]["type"]]["profile"];
+                    if(vehicle_type=="Van profile") {
+                        $(small_card_icon).append($("<div />",{"class":"ufo_small_card_vehicle_icon_large","html":ufo_icons["icon_van"]}));
+                    }
+                    else {
+                        $(small_card_icon).append($("<div />",{"class":"ufo_small_card_vehicle_icon_large","html":ufo_icons["icon_car"]}));
+                    }
+                }
+            }
+            $(title_div).html(driver_dropdown.domel);
         }
+/*        else {
+            if(this.active==true) {
+                $(small_card_icon).css({"background-color":"var(--herebluegreen)","border-radius":"2px","border":"1px solid var(--herebluegreen)"});
+                $(small_card_icon).append(ufo_icons["check"]);
+            }
+            else {
+                $(small_card_icon).append(ufo_icons["van"]);
+            }
+            var title_div = $("<div />", { "class": "ufo_small_title", "text": ufo_vehicles[this.vehicle].name });
+        }*/
+
+        var license_div;
 
         if(this.status>2) {
             // If status is 3, then the job is dispatched, so we need to show the job status details
             var driver_div = $("<div />", { "class": "ufo_small_status" });
+            license_div = $("<div />", { "class": "ufo_small_title" });
+            $(license_div).html(ufo_vehicles[this.vehicle].license);
             var status_div = $("<div />", { "class": "ufo_small_details" });
             /**
              * "driver_div" is a formality--in this case we'll use it to show ETA
@@ -3052,7 +3468,7 @@ class ufo_tour {
             $(driver_div).html(ufo_vehicles[this.vehicle].license+" | "+ufo_vehicles[this.vehicle].name);
         }
         else {
-            var driver_div = $("<div />", { "class": "ufo_small_details" });
+            var driver_div = $("<div />", { "class": "ufo_small_title" });
             var status_div = $("<div />", { "class": "ufo_small_status" });
             if (this.driver == "") {
                 //var driversel = new ufo_dropdown({ show_first: true, midbar: false, smallcard: true, id: "driversel_"+this.uid, elements: ["driver1","driver2","driver3"], parent: assignments_panel, vars: [], clickactions: [0,1,2] });
@@ -3104,11 +3520,12 @@ class ufo_tour {
         $(small_card).append(status_div);
         $(small_card).append(title_div);
         $(small_card).append(driver_div);
+        $(small_card).append(license_div);
         //$(small_card).append(route_info);
        
 
         // Binding an action to "select" or "deselect" this card...
-        $(small_card).on("click", { arg1: this, arg2: panel }, function (e) { e.data.arg1.small_card_selector(e.data.arg2); });
+        $(small_card_icon).on("click", { arg1: this, arg2: panel }, function (e) { e.data.arg1.small_card_selector(e.data.arg2); });
 
         $(panel.list_sect).append(small_card);
     }
@@ -3457,7 +3874,7 @@ function ufo_draw_fleet_paths(params) {
 		call_log(fname,caller);
 	}
     if (params.color == undefined) {
-        var color = "#7DBAE4";
+        var color = "#1d417c"; // This is the normal color for paths drawn on the map?
     }
     else {
         var color = params.color;
@@ -3844,7 +4261,8 @@ function ufo_draw_route(params) {
                 alpha = .2 + (alpha*.8);
             }
             
-            tcx.strokeStyle = "rgba(106,109,116,"+alpha+")";
+            //tcx.strokeStyle = "rgba(106,109,116,"+alpha+")";
+            tcx.strokeStyle = "rgba(70,0,212,"+alpha+")";
             tcx.lineWidth = 4;
             tcx.stroke();
             tcx.lineWidth = 3;
@@ -4002,11 +4420,97 @@ function ufo_position_tours(params) {
 
 }
 
-function ufo_vehicle_panel() {
+function ufo_vehicle_panel(tab) {
+    if(tab==undefined) {
+        var tab = "profiles";
+    }
+    else {
+        var tab = tab;
+    }
     $(".map_zoom_in,.map_zoom_out,.map_data_selector").hide();
+    $(".ufo_large_panel").remove();
     var vptitle = $("<div />",{"class":"ufo_large_panel_title"});
-    $(vptitle).append("Vehicles ("+ufo_vehicles.length+")")
+    $(vptitle).append("Fleet")
     var vpcontainer = $("<div />",{"class":"ufo_large_panel"});
+
+    var vptable = $("<table />",{"class":"ufo_driver_table"});
+    var vptabbuffer = $("<tr />",{"class":"ufo_driver_table_header","css":{"background-color":"var(--herewhite)","border":"0px solid black","height":"40px"}});
+    var vpheader = $("<tr />",{"class":"ufo_driver_table_header"});
+
+    if(tab=="profiles") {
+        var headers = ["Name","Type","Cost per km","Cost per min","Fixed cost","Capacity","Max range (km)","Shift time (hr)"];
+        var tab_left = $("<div />",{"class":"ufo_driver_table_tab_bg_active"});
+        var tab_right = $("<div />",{"class":"ufo_driver_table_tab_bg_inactive"});
+        $(vptabbuffer).append($("<td />",{"attr":{"colspan":headers.length}}));
+    }
+    else {
+        var headers = ["Profile","Depot","Number plate","Make","Model","Additional info","Status"];
+        var tab_left = $("<div />",{"class":"ufo_driver_table_tab_bg_inactive"});
+        var tab_right = $("<div />",{"class":"ufo_driver_table_tab_bg_active"});
+        $(vptabbuffer).append($("<td />",{"attr":{"colspan":headers.length}}));
+    }
+    $(tab_left).append($("<div />",{"text":"Vehicle profiles"}));
+    $(tab_left).on("click",function() { ufo_vehicle_panel("profiles")});
+    $(tab_right).append($("<div />",{"text":"Vehicles"}));
+    $(tab_right).on("click",function() { ufo_vehicle_panel("vehicles")});
+
+    var vptab = $("<div />",{"class":"ufo_driver_table_tabs"});
+    $(vptab).append(tab_left);
+    $(vptab).append(tab_right);
+
+    for(var i=0;i<headers.length;i++) {
+        $(vpheader).append($("<td />",{"text":headers[i]}));
+    }
+
+    $(vptable).append(vptabbuffer);
+    $(vptable).append(vpheader);
+
+    if(tab=="profiles") {
+        var vpids = Object.keys(ufo_vehicle_defs);
+
+        for(var i=0;i<vpids.length;i++) {
+            var vrow = $("<tr />",{"class":"ufo_driver_table_row"});
+            $(vrow).append($("<td />",{"text":ufo_vehicle_defs[vpids[i]]["name"]}));
+            var typecell = $("<td />",{"class":"ufo_driver_table_typecell"});
+            if(ufo_vehicle_defs[vpids[i]]["profile"]=="Van profile") {
+                $(typecell).append(ufo_icons["icon_van"]);
+                $(typecell).append($("<span />",{"text":"Truck profile","css":{"background-color":"var(--herewhite)","font-weight":"100"}}))
+            }
+            else {
+                $(typecell).append(ufo_icons["icon_car"]);
+                $(typecell).append($("<span />",{"text":"Car profile","css":{"background-color":"var(--herewhite)","font-weight":"100"}}))
+            }
+            $(vrow).append(typecell);
+            $(vrow).append($("<td />",{"text":ufo_vehicle_defs[vpids[i]]["cpk"]}));
+            $(vrow).append($("<td />",{"text":ufo_vehicle_defs[vpids[i]]["cpm"]}));
+            $(vrow).append($("<td />",{"text":"-"}));
+            $(vrow).append($("<td />",{"text":ufo_vehicle_defs[vpids[i]]["capacity"]}));
+            $(vrow).append($("<td />",{"text":ufo_vehicle_defs[vpids[i]]["range"]}));
+            $(vrow).append($("<td />",{"text":"8"}));
+            $(vptable).append(vrow);
+        }
+    }
+    else {
+        for(var i=0;i<ufo_vehicles.length;i++) {
+            var vrow = $("<tr />",{"class":"ufo_driver_table_row"});
+            $(vrow).append($("<td />",{"text":ufo_vehicles[i]["name"]}));
+            $(vrow).append($("<td />",{"text":"Las Vegas - South"}));
+            $(vrow).append($("<td />",{"text":ufo_vehicles[i]["license"]}));
+            $(vrow).append($("<td />",{"text":"-"}));
+            $(vrow).append($("<td />",{"text":"-"}));
+            $(vrow).append($("<td />",{"text":"-"}));
+            $(vrow).append($("<td />",{"html":"<span class='ufo_driver_table_row_status'>Available</span>"}));
+            $(vptable).append(vrow);
+        }
+    }
+
+
+    $(vpcontainer).append(vptitle);
+    $(vpcontainer).append(vptab);
+    $(vpcontainer).append(vptable);
+
+    $("#main_container").append(vpcontainer);
+    /*
     for(var i=0;i<ufo_vehicles.length;i++) {
         var vcard = $("<div />",{"class":"ufo_large_panel_card"});
         var vcardicon = $("<div />",{"class":"ufo_large_panel_card_icon"});
@@ -4042,14 +4546,40 @@ function ufo_vehicle_panel() {
     }
     $(vpcontainer).append(vptitle);
     $("#main_container").append(vpcontainer);
+    */
 }
 
 function ufo_driver_panel() {
     $(".map_zoom_in,.map_zoom_out,.map_data_selector").hide();
+    $(".ufo_large_panel").remove();
     var dptitle = $("<div />",{"class":"ufo_large_panel_title"});
     var dpids = Object.keys(ufo_driver_defs);
     $(dptitle).append("Drivers ("+dpids.length+")")
     var dpcontainer = $("<div />",{"class":"ufo_large_panel"});
+
+    var dptable = $("<table />",{"class":"ufo_driver_table"});
+    var dpheader = $("<tr />",{"class":"ufo_driver_table_header"});
+    var headers = ["First name","Last name","Email","Phone number","Roles","Depot","Status"];
+    for(var i=0;i<headers.length;i++) {
+        $(dpheader).append($("<td />",{"text":headers[i]}));
+    }
+
+    $(dptable).append(dpheader);
+
+    for(var i=0;i<dpids.length;i++) {
+        var drow = $("<tr />",{"class":"ufo_driver_table_row"});
+        $(drow).append($("<td />",{"text":ufo_driver_defs[dpids[i]]["firstname"]}));
+        $(drow).append($("<td />",{"text":ufo_driver_defs[dpids[i]]["lastname"]}));
+        $(drow).append($("<td />",{"text":ufo_driver_defs[dpids[i]]["email"]}));
+        $(drow).append($("<td />",{"text":ufo_driver_defs[dpids[i]]["phone"]}));
+        $(drow).append($("<td />",{"text":"Driver"}));
+        $(drow).append($("<td />",{"text":"Las Vegas - South"}));
+        $(drow).append($("<td />",{"html":"<span class='ufo_driver_table_row_status'>Active</span>"}));
+        $(dptable).append(drow);
+    }
+
+
+    /*
 
     for(var i=0;i<dpids.length;i++) {
         var dcard = $("<div />",{"class":"ufo_large_panel_card"});
@@ -4115,8 +4645,296 @@ function ufo_driver_panel() {
         $(dpcontainer).append(dcard);
     }
 
+    */
+
     $(dpcontainer).append(dptitle);
+    $(dpcontainer).append(dptable);
     $("#main_container").append(dpcontainer);
+}
+
+function ufo_report_panel(offset) {
+    $(".map_zoom_in,.map_zoom_out,.map_data_selector").hide();
+    var dptitle = $("<div />",{"class":"ufo_large_panel_title"});
+    $(dptitle).append("Daily reports");
+    var dpcontainer = $("<div />",{"class":"ufo_large_panel"});
+
+    var tour_data = new ufo_report({"offset":offset});
+    console.log(tour_data)
+
+    $(dpcontainer).append(dptitle);
+
+    var date_report = $("<div />",{"class":"ufo_large_panel_report_date"});
+    var report_time = date_normal({"unixtime":(time-(offset*86400)),"absolute":true,"shortmonth":false,"dayonly":true,"year":true});
+    var date_left = $("<div />",{"class":"ufo_large_panel_report_date_left"});
+    var date_right = $("<div />",{"class":"ufo_large_panel_report_date_right"});
+    $(date_left).append(ufo_icons["chevron"]);
+    if(offset==0) {
+        $(date_right).append(ufo_icons["chevron_grey"]);
+    }
+    else {
+        $(date_right).append(ufo_icons["chevron"]);
+        $(date_right).on("click",function() { ufo_report_panel(offset-1)});
+    }
+    $(date_left).on("click",function() { ufo_report_panel(offset+1)});
+    $(date_report).append(report_time);
+    $(date_report).append(date_left);
+    $(date_report).append(date_right);
+    $(dpcontainer).append(date_report);
+
+    var dptitle_sub = $("<div />",{"class":"ufo_large_panel_subtitle","text":"Tours overall"});
+    $(dptitle_sub).css({"margin-top":"150px"});
+    $(dpcontainer).append(dptitle_sub);
+
+    ufo_report_panel_add(tour_data,dpcontainer);
+
+    var dptitle_sub = $("<div />",{"class":"ufo_large_panel_subtitle","text":"Individual tour report"});
+    $(dptitle_sub).css({"margin-top":"30px","margin-bottom":"30px"});
+    $(dpcontainer).append(dptitle_sub);
+
+    for(var i=0;i<tour_data["tours"].length;i++) {
+        var t = tour_data["tours"][i];
+        var s = {};
+        s["driver"] = t["driver"];
+        s["tour_actual"] = t["actual"];
+        s["tour_distance"] = t["distance"];
+        s["tour_planned"] = t["planned"];
+        s["stop_count"] = t["stops"];
+        s["delay_count"] = t["delayed"];
+        s["tour_count"] = 1;
+        s["delay_reason"] = {};
+        s["not_delivered_count"] = 0;
+        s["end"] = t["end"];
+        s["start"] = t["start"];
+        for(var j=0;j<=6;j++) {
+            s["delay_reason"][j] = 0;
+        }
+        for(var j=0;j<t["incompletes"].length;j++) {
+            s["delay_reason"][t["incompletes"][j]] += 1;
+            s["not_delivered_count"] += 1;
+        }
+        ufo_report_panel_add(s,dpcontainer,i+1);
+    }
+
+    $("#main_container").append(dpcontainer);
+}
+
+function ufo_report_panel_add(tour_data,dpcontainer,tour_id) {
+
+    var dp_toursummary = $("<div />",{"class":"ufo_large_panel_big_card"});
+    var dp_topsummary = $("<div />",{"class":"ufo_large_panel_big_card_summary_container","css":{"left":"240px"}});
+
+    if(tour_data["driver"]==undefined) {
+        var dp_summary_title = $("<div />",{"class":"ufo_large_panel_big_card_title","text":"Tours: "+tour_data.tour_count});
+        var dp_summary_b_line_left = $("<div />",{"class":"ufo_large_panel_big_card_left","text":"Averages per tour: "});
+    }
+    else {
+        var dp_summary_b_line_left = $("<div />",{"class":"ufo_large_panel_big_card_left","text":"Tour summary: "});
+        var dp_summary_title = $("<div />",{"class":"ufo_large_panel_big_card_title"});
+        var driver_circle = $("<div />",{"class":"ufo_large_panel_big_card_circle"});
+        var driver_top = $("<div />",{"class":"ufo_large_panel_big_card_name"});
+        var driver_bottom = $("<div />",{"class":"ufo_large_panel_big_card_name_summary"});
+        var start_date = "Tour " + tour_id + " | " + tour_data["start"].getHours() + ":" + ("0"+tour_data["start"].getMinutes()).substr(-2) + " - " + tour_data["end"].getHours() + ":" + ("0"+tour_data["end"].getMinutes()).substr(-2);
+        $(driver_bottom).append(start_date);
+        var driver = ufo_driver_defs[tour_data["driver"]];
+        $(driver_top).text(driver["firstname"]+" "+driver["lastname"]);
+        $(driver_circle).text(driver["firstname"].substr(0,1)+driver["lastname"].substr(0,1))
+        $(dp_summary_title).append(driver_circle);
+        $(dp_summary_title).append(driver_top);
+        $(dp_summary_title).append(driver_bottom);
+        $(dp_topsummary).css({"left":"340px"})
+    }
+    var dp_summary_a_line_left = $("<div />",{"class":"ufo_large_panel_big_card_left","text":"Planned totals: "});
+    $(dp_summary_a_line_left).css({"top":"30px"});
+    $(dp_summary_b_line_left).css({"top":"56px"});
+
+    var all_tour_cost = parseInt((tour_data.tour_distance * dcpkm) + ((tour_data.tour_actual/60.0)*dcphr)*100.0)/100;
+
+
+    // Planned totals summary
+    var dp_summary_a_line_right = $("<div />",{"class":"ufo_large_panel_big_card_right"});
+    $(dp_summary_a_line_right).css({"top":"30px"});
+    var cost_span = $("<span />",{"text":"$"+all_tour_cost});
+    var dist_span = $("<span />",{"text":parseInt(tour_data.tour_distance)+" KM"});
+    var time_span = $("<span />");
+    var time_delta = tour_data["tour_actual"] - tour_data["tour_planned"];
+    $(time_span).append(time_string(tour_data["tour_actual"]));
+    if(time_delta>0) {
+        var time_delta_span = $("<span />",{"css":{"color":"var(--heremidgrey)","display":"inline","font-weight":"100"},"text":" ("+time_string(Math.abs(time_delta))+" more than planned)"})
+    }
+    else {
+        var time_delta_span = $("<span />",{"css":{"color":"var(--heremidgrey)","display":"inline","font-weight":"100"},"text":" ("+time_string(Math.abs(time_delta))+" less than planned)"})
+    }
+    $(time_span).append(time_delta_span);
+
+    $(dp_summary_a_line_right).append(cost_span);
+    $(dp_summary_a_line_right).append(dist_span);
+    $(dp_summary_a_line_right).append(time_span);
+
+    // Tour summary
+    var dp_summary_b_line_right = $("<div />",{"class":"ufo_large_panel_big_card_right"});
+    $(dp_summary_b_line_right).css({"top":"56px"});
+    var orders_span = $("<span />");
+    $(orders_span).append(ufo_icons["icon_orders"]);
+    $(orders_span).append("Orders: " + Math.floor(tour_data["stop_count"]/tour_data["tour_count"]));
+    var stops_span = $("<span />");
+    $(stops_span).append(ufo_icons["icon_stops"]);
+    $(stops_span).append("Stops: " + (2+Math.floor(tour_data["stop_count"]/tour_data["tour_count"])));
+    var tasks_span = $("<span />");
+    $(tasks_span).append(ufo_icons["icon_tasks"]);
+    $(tasks_span).append("Tasks: " + Math.floor(tour_data["stop_count"]/tour_data["tour_count"]));
+
+    $(dp_summary_b_line_right).append(orders_span);
+    $(dp_summary_b_line_right).append(stops_span);
+    $(dp_summary_b_line_right).append(tasks_span);
+
+
+    $(dp_toursummary).append(dp_summary_title);
+    $(dp_topsummary).append(dp_summary_a_line_left);
+    $(dp_topsummary).append(dp_summary_a_line_right);
+    $(dp_topsummary).append(dp_summary_b_line_left);
+    $(dp_topsummary).append(dp_summary_b_line_right);
+    $(dp_toursummary).append(dp_topsummary);
+    var graphs = $("<div />",{"class":"ufo_large_panel_big_card_column_container"});
+
+    var col_a = $("<div />",{"class":"ufo_large_panel_big_card_column"});
+    //$(col_a).css({"margin-left":"-60px"});
+    $(col_a).append($("<div />",{"class":"ufo_large_panel_big_card_column_title","text":"ORDER VOLUME"}));
+    $(col_a).append($("<div />",{"class":"ufo_large_panel_big_card_column_bigdata","text":"Tasks: "+tour_data.stop_count}))
+    var a_graph = $("<div />",{"class":"ufo_large_panel_big_card_graph"});
+    $(a_graph).css({"background-color":"var(--heregraphblue)"});
+
+    $(col_a).append(a_graph);
+
+    var a_line_a = $("<div />",{"class":"ufo_large_panel_big_card_line"});
+    var a_line_a_a = $("<div />",{"text":"Pickups","css":{"color":"var(--heregraphpurple","width":"50%","justify-content":"left","flex":"1 0 50%"}});
+    var a_line_a_b = $("<div />",{"text":"0","css":{"flex":"0 1 20%","font-weight":"bold"}});
+    var a_line_a_c = $("<div />",{"text":"(0.0%)","css":{"flex":"0 1 25%"}});
+    $(a_line_a).append(a_line_a_a);
+    $(a_line_a).append(a_line_a_b);
+    $(a_line_a).append(a_line_a_c);
+    $(col_a).append(a_line_a);
+
+    var a_line_b = $("<div />",{"class":"ufo_large_panel_big_card_line"});
+    var a_line_b_a = $("<div />",{"text":"Deliveries","css":{"color":"var(--heregraphblue","width":"50%","justify-content":"left","flex":"1 0 50%"}});
+    var a_line_b_b = $("<div />",{"text":tour_data.stop_count,"css":{"flex":"0 1 20%","font-weight":"bold"}});
+    var a_line_b_c = $("<div />",{"text":"(100.0%)","css":{"flex":"0 1 25%"}});
+    $(a_line_b).append(a_line_b_a);
+    $(a_line_b).append(a_line_b_b);
+    $(a_line_b).append(a_line_b_c);
+    $(col_a).append(a_line_b);
+
+    // B COLUMN
+    
+    var col_b = $("<div />",{"class":"ufo_large_panel_big_card_column"});
+    $(col_b).append($("<div />",{"class":"ufo_large_panel_big_card_column_title","text":"ON-TIME VS DELAYED"}));
+    var on_time = (tour_data.stop_count-tour_data.not_delivered_count)-tour_data.delay_count;
+    var on_time_perc = parseInt((parseFloat(on_time)/parseFloat((tour_data.stop_count-tour_data.not_delivered_count)))*10000)/100.0;
+    var delay_perc = parseInt((parseFloat(tour_data.delay_count)/parseFloat((tour_data.stop_count-tour_data.not_delivered_count)))*10000)/100.0;
+    $(col_b).append($("<div />",{"class":"ufo_large_panel_big_card_column_bigdata","text":on_time_perc+"%"}))
+    var b_graph = $("<div />",{"class":"ufo_large_panel_big_card_graph"});
+    var b_graph_sub = $("<div />");
+    $(b_graph_sub).css({"width":on_time_perc+"%","background-color":"var(--heregraphgreen)"})
+    $(b_graph).append(b_graph_sub);
+    $(col_b).append(b_graph);
+
+    var b_line_a = $("<div />",{"class":"ufo_large_panel_big_card_line"});
+    var b_line_a_a = $("<div />",{"text":"On time","css":{"color":"var(--heregraphgreen","width":"50%","text-align":"left","flex":"1 0 50%","justify-content":"left"}});
+    var b_line_a_b = $("<div />",{"text":on_time,"css":{"flex":"0 1 20%","font-weight":"bold"}});
+    var b_line_a_c = $("<div />",{"text":"("+on_time_perc+"%)","css":{"flex":"0 1 25%"}});
+    $(b_line_a).append(b_line_a_a);
+    $(b_line_a).append(b_line_a_b);
+    $(b_line_a).append(b_line_a_c);
+    $(col_b).append(b_line_a);
+
+    var b_line_b = $("<div />",{"class":"ufo_large_panel_big_card_line"});
+    var b_line_b_a = $("<div />",{"text":"Delayed","css":{"color":"var(--heregraphred","width":"50%","text-align":"left","flex":"1 0 50%","justify-content":"left"}});
+    var b_line_b_b = $("<div />",{"text":tour_data.delay_count,"css":{"flex":"0 1 20%","font-weight":"bold"}});
+    var b_line_b_c = $("<div />",{"text":"("+delay_perc+"%)","css":{"flex":"0 1 25%"}});
+    $(b_line_b).append(b_line_b_a);
+    $(b_line_b).append(b_line_b_b);
+    $(b_line_b).append(b_line_b_c);
+    $(col_b).append(b_line_b);
+
+    // C COLUMN
+
+    var col_c = $("<div />",{"class":"ufo_large_panel_big_card_column"});
+    $(col_c).append($("<div />",{"class":"ufo_large_panel_big_card_column_title","text":"SUCCESSFUL DELIVERIES"}));
+    var delivered = (tour_data.stop_count)-tour_data.not_delivered_count;
+    var delivered_perc = parseInt((parseFloat(delivered)/parseFloat((tour_data.stop_count)))*10000)/100.0;
+    var not_delivered_perc = parseInt((parseFloat(tour_data.not_delivered_count)/parseFloat((tour_data.stop_count)))*10000)/100.0;
+    $(col_c).append($("<div />",{"class":"ufo_large_panel_big_card_column_bigdata","text":delivered_perc+"%"}))
+    var c_graph = $("<div />",{"class":"ufo_large_panel_big_card_graph"});
+    var c_graph_sub = $("<div />");
+    $(c_graph_sub).css({"width":delivered_perc+"%","background-color":"var(--heregraphblue)"})
+    $(c_graph).append(c_graph_sub);
+    $(col_c).append(c_graph);
+
+    var c_line_a = $("<div />",{"class":"ufo_large_panel_big_card_line"});
+    var c_line_a_a = $("<div />",{"text":"To recipient","css":{"flex":"1 0 50%","color":"var(--heregraphblue","justify-content":"left"}});
+    var c_line_a_b = $("<div />",{"text":delivered,"css":{"flex":"0 1 20%"}});
+    $(c_line_a_b).css({"font-weight":"bold"});
+    var c_line_a_c = $("<div />",{"text":"("+delivered_perc+"%)","css":{"flex":"0 1 25%"}});
+    $(c_line_a).append(c_line_a_a);
+    $(c_line_a).append(c_line_a_b);
+    $(c_line_a).append(c_line_a_c);
+    $(col_c).append(c_line_a);
+
+    var c_line_b = $("<div />",{"class":"ufo_large_panel_big_card_line"});
+    var c_line_b_a = $("<div />",{"text":"To other person","css":{"flex":"1 0 50%","color":"var(--heregraphred","justify-content":"left"}});
+    var c_line_b_b = $("<div />",{"text":"0","css":{"flex":"0 1 20%"}});
+    $(c_line_b_b).css({"font-weight":"bold"});
+    var c_line_b_c = $("<div />",{"text":"(0%)","css":{"flex":"0 1 25%"}});
+    $(c_line_b).append(c_line_b_a);
+    $(c_line_b).append(c_line_b_b);
+    $(c_line_b).append(c_line_b_c);
+    $(col_c).append(c_line_b);
+
+    // D COLUMN
+
+    var col_d = $("<div />",{"class":"ufo_large_panel_big_card_column"});
+    var not_delivered = $("<div />",{"class":"ufo_large_panel_big_card_right_column"});
+    $(not_delivered).append($("<div />",{"id":"big_card_title","text":"NOT DELIVERED"}));
+    var not_delivered_title = $("<div />",{"class":"ufo_large_panel_big_card_column_bigdata","html":tour_data.not_delivered_count+" <span style='font-weight:normal'>("+not_delivered_perc+"%)</span>"});
+    $(not_delivered_title).css({"margin-left":"10px","margin-top":"30px"});
+    $(not_delivered).append(not_delivered_title);
+
+    var delay_reasons = ["Customer not at address","Refused by customer","Customer not in","Couldn't find the place","Ran out of time","Outside business hours"];
+
+    for(var i=0;i<6;i++) {
+        var d_line_a = $("<div />",{"class":"ufo_large_panel_big_card_line","css":{"margin-left":"15px"}});
+        $(d_line_a).append($("<div />",{"text":delay_reasons[i],"css":{"flex":"1 0 50%","justify-content":"left","color":"var(--heremidgrey)"}}));
+        $(d_line_a).append($("<div />",{"text":tour_data.delay_reason[i],"css":{"flex":"0 1 20%","color":"black","font-weight":"bold"}}));
+        if(tour_data.delay_reason[i]!=0) {
+            $(d_line_a).append($("<div />",{"text":"("+(parseInt((tour_data.delay_reason[i]/tour_data.not_delivered_count)*10000))/100.0+"%)","css":{"flex":"0 1 25%","color":"black"}}));
+
+        }
+        else {
+            $(d_line_a).append($("<div />",{"text":"(0%)","css":{"flex":"0 1 25%","color":"black"}}));
+
+        }
+        $(not_delivered).append(d_line_a);
+    }
+
+
+
+    /*var d_line_b = $("<div />",{"class":"ufo_large_panel_big_card_right_line"});
+    $(d_line_b).append($("<div />",{"text":"Refused by customer","css":{"flex":"1 0 10em"}}));
+    $(d_line_b).append($("<div />",{"text":"4","css":{"flex":"1 0 3em","color":"black","font-weight":"bold"}}));
+    $(d_line_b).append($("<div />",{"text":"(66.67%)","css":{"flex":"1 0 2em","color":"black"}}));
+    $(not_delivered).append(d_line_b);
+    */
+
+
+    $(col_d).append(not_delivered);
+
+
+    $(graphs).append(col_a);
+    $(graphs).append(col_b);
+    $(graphs).append(col_c);
+    $(graphs).append(col_d);
+
+    $(dp_toursummary).append(graphs);
+    $(dpcontainer).append(dp_toursummary);
 }
 
 function smooth_interlink(a,b,u,v) {
@@ -4759,6 +5577,26 @@ function valid_orders() {
     return valid;
 }
 
+function get_random(offset,digits) {
+    var offset = parseInt(offset);
+    var digits = parseInt(digits);
+    var ufo_rand = "";
+    if(offset+digits < ufo_pi.length) {
+        ufo_rand = ufo_pi.substr(offset,digits);
+    }
+    else {
+        var modulo = digits-((offset+digits)-ufo_pi.length);
+        // 998 + 7 = 1005
+        // 7 - (1005-1000) = 2
+        // 1000
+
+        var first_part = ufo_pi.substr(offset,modulo);
+        var second_part = ufo_pi.substr(0,digits-modulo);
+        ufo_rand = first_part + "" + second_part;
+    }
+    return ufo_rand;
+}
+
 /*
     END CALCULATION FUNCTIONS
 */
@@ -4841,7 +5679,7 @@ function ufo_create_tours(params) {
     if(from_timechange==false) {
         var d = new Date();
         d.setHours(8);
-        d.setMinutes(30);
+        d.setMinutes(5);
         time = d.getTime()/1000|0;
     }
     for(var i=0;i<ufo_tours.length;i++) {
@@ -4892,7 +5730,7 @@ function ufo_create_tours(params) {
             
             if(from_timechange==true) {
                 active_tours[i].driver = ufo_driver_defs[i].name;
-                active_tours[i].start_time = (ufo_midnight+30614);
+                active_tours[i].start_time = (ufo_midnight+29100);
             }
             else {
                 active_tours[i].status = 1;
@@ -4999,13 +5837,13 @@ function ufo_mode_switch(newmode) {
             fleetmode = "";
             order_panel.hide();
             assignments_panel.hide();
-            $("#ufo_time_control").velocity({left:[60,735]},{duration:160});
+            // 23.11.2021 disabling resizing of the time control $("#ufo_time_control").velocity({left:[60,735]},{duration:160});
         }
         else {
             fleetmode = "plan";
             order_panel.draw(fname);
             assignments_panel.draw(fname);
-            $("#ufo_time_control").velocity({left:[735,60]},{duration:160});
+            // 23.11.2021 disabling resizing of the time control $("#ufo_time_control").velocity({left:[735,60]},{duration:160});
         }
         
     }
@@ -5060,21 +5898,49 @@ function ufo_mode_switch(newmode) {
         }
         
     }
+    if (newmode == "reports") {
+        if(fleetmode=="reports") {
+            $(".ufo_large_panel").remove();
+            $(".map_zoom_in,.map_zoom_out,.map_data_selector").show();
+            fleetmode = "";
+        }
+        else {
+            if(ufo_phone.visible!=undefined) {
+                ufo_phone.hide();
+            }
+            fleetmode = "reports";
+            ufo_report_panel(0);
+        }
+        
+    }
     ufo_sidebar_icons();
 }
 
 function ufo_sidebar_icons() {
-    $("#icon_calendar_svg").children("path")[0].style.fill = "var(--heremidgrey)";
+    //$("#icon_calendar_svg").children("path")[0].style.fill = "var(--heremidgrey)";
     $("#icon_phone_svg").children("path")[0].style.fill = "var(--heremidgrey)";
-    $("#icon_vehicles_svg").children("path")[0].style.fill = "var(--heremidgrey)";
-    $("#icon_drivers_svg").children("path")[0].style.fill = "var(--heremidgrey)";
-    $("#ufo_icon_plan_border, #ufo_icon_phone_border, #ufo_icon_vehicles_border, #ufo_icon_drivers_border").removeClass("ufo_sidebar_icon_border_selected");
-    $("#ufo_icon_plan_border, #ufo_icon_phone_border, #ufo_icon_vehicles_border, #ufo_icon_drivers_border").addClass("ufo_sidebar_icon_border_unselected");
+    //$("#icon_vehicles_svg").children("path")[0].style.fill = "var(--heremidgrey)";
+    //$("#icon_drivers_svg").children("path")[0].style.fill = "var(--heremidgrey)";
+    $("#icon_calendar_inactive,#icon_reports_inactive,#icon_drivers_inactive,#icon_vehicles_inactive").show();
+    $("#icon_calendar_active,#icon_reports_active,#icon_drivers_active,#icon_vehicles_active").hide();
+    $("#ufo_icon_plan_border, #ufo_icon_phone_border, #ufo_icon_vehicles_border, #ufo_icon_drivers_border, #ufo_icon_reports_border").removeClass("ufo_sidebar_icon_border_selected");
+    $("#ufo_icon_plan_border, #ufo_icon_phone_border, #ufo_icon_vehicles_border, #ufo_icon_drivers_border, #ufo_icon_reports_border").addClass("ufo_sidebar_icon_border_unselected");
+    $("#ufo_time_control").show();
 
     if (fleetmode == "plan") {
-        $("#icon_calendar_svg").children("path")[0].style.fill = "#000000";
+        $("#icon_calendar_inactive").hide();
+        $("#icon_calendar_active").show();
+        //$("#icon_calendar_svg").children("path")[0].style.fill = "#000000";
         $("#ufo_icon_plan_border").removeClass("ufo_sidebar_icon_border_unselected");
         $("#ufo_icon_plan_border").addClass("ufo_sidebar_icon_border_selected");
+    }
+    if (fleetmode == "reports") {
+        $("#icon_reports_inactive").hide();
+        $("#icon_reports_active").show();
+        //$("#icon_calendar_svg").children("path")[0].style.fill = "#000000";
+        $("#ufo_icon_reports_border").removeClass("ufo_sidebar_icon_border_unselected");
+        $("#ufo_icon_reports_border").addClass("ufo_sidebar_icon_border_selected");
+        $("#ufo_time_control").hide();
     }
     if (ufo_phone.visible!=undefined) {
         if(ufo_phone.visible==true) {
@@ -5084,14 +5950,20 @@ function ufo_sidebar_icons() {
         }
     }
     if (fleetmode == "vehicles") {
-        $("#icon_vehicles_svg").children("path")[0].style.fill = "#000000";
+        $("#icon_vehicles_inactive").hide();
+        $("#icon_vehicles_active").show();
+        //$("#icon_vehicles_svg").children("path")[0].style.fill = "#000000";
         $("#ufo_icon_vehicles_border").removeClass("ufo_sidebar_icon_border_unselected");
         $("#ufo_icon_vehicles_border").addClass("ufo_sidebar_icon_border_selected");
+        $("#ufo_time_control").hide();
     }
     if (fleetmode == "drivers") {
-        $("#icon_drivers_svg").children("path")[0].style.fill = "#000000";
+        $("#icon_drivers_inactive").hide();
+        $("#icon_drivers_active").show();
+        //$("#icon_drivers_svg").children("path")[0].style.fill = "#000000";
         $("#ufo_icon_drivers_border").removeClass("ufo_sidebar_icon_border_unselected");
         $("#ufo_icon_drivers_border").addClass("ufo_sidebar_icon_border_selected");
+        $("#ufo_time_control").hide();
     }
 }
 
@@ -5340,17 +6212,19 @@ function ufo_firstrun() {
             ufo_tours.push(newtour);
         }
         order_panel = new vertical_panel({ id: "orders", icon: "list", name: "Orders", left: 64 });
-        order_panel.add_dropdown({ id: "show", elements: ["Show: Unassigned today","Show: Assigned", "Show: Delayed", "Show: All"], clickactions: ["show_unassigned","show_assigned", "show_delayed", "show_all"], show_first: true });
+        //order_panel.add_dropdown({ id: "show", elements: ["Show: Unassigned today","Show: Assigned", "Show: Delayed", "Show: All"], clickactions: ["show_unassigned","show_assigned", "show_delayed", "show_all"], show_first: true });
+        order_panel.add_dropdown({ id: "show", elements: ["All","Accepted", "Done", "Not Done","In Progress","Open","Processing","Returned","Scheduled"], clickactions: ["show_unassigned","show_all", "show_delayed", "show_all","show_all","show_all","show_all","show_all",""], show_first: true });
         order_panel.add_filter({ id: "filter", text: "Filter: " });
-        order_panel.add_dropdown({ id: "sort", elements: ["Sort by: Priority", "Sort by: Date", "Sort by: Name"], clickactions: ["", "", ""] });
+        //order_panel.add_dropdown({ id: "sort", elements: ["Sort by: Priority", "Sort by: Date", "Sort by: Name"], clickactions: ["", "", ""] });
         order_panel.add_dropdown({ id: "action", elements: ["[0]", "Select all", "Unselect all"], clickactions: ["", "select_all_orders", "unselect_all_orders"], midbar: true, vars: ["order_count"] });
+        order_panel.add_dropdown({ id: "order_action", elements: ["Add Orders","Assign to Tour","Delete Selected","Edit Selected","Switch View"], clickactions: ["import_jobs","","","",""], header: true, vars:["ufo_status"]});
         order_panel.add_action_button({start_hidden:false,text:"Import jobs",position:"bottom-right",action:"import_jobs","id":"import_jobs"});
         //order_panel.add_action_button({start_hidden:true,text:"Optimize",position:"bottom-right",action:"launch_assignments","id":"assign"});
         order_panel.showmode = "unassigned";
-        assignments_panel = new vertical_panel({ id: "assignments", icon: "assignments", name: "Planning", left: 400 });
+        assignments_panel = new vertical_panel({ id: "assignments", icon: "assignments", name: "Assignments", left: 400 });
         assignments_panel.add_dropdown({ id: "show", elements: ["Show: All tours"], clickactions:[""], show_first: true });
         assignments_panel.add_filter({ id: "filter", text: "Filter: " });
-        assignments_panel.add_dropdown({ id: "sort", elements: ["Delay tolerance: Normal", "Delay tolerance: Relaxed", "Delay tolerance: Aggressive", "Delay tolerance: Very aggressive"],clickactions:["delay_normal","delay_relaxed","delay_aggressive","delay_very_aggressive"] });
+        //assignments_panel.add_dropdown({ id: "sort", elements: ["Delay tolerance: Normal", "Delay tolerance: Relaxed", "Delay tolerance: Aggressive", "Delay tolerance: Very aggressive"],clickactions:["delay_normal","delay_relaxed","delay_aggressive","delay_very_aggressive"] });
         assignments_panel.add_dropdown({ id: "assignment_action", elements: ["[0]", "Select all", "Unselect all"], clickactions: ["", "select_all_vehicles", "unselect_all_vehicles"], midbar: true, vars: ["tour_count"] });
         assignments_panel.add_action_button({start_hidden:true,text:"Optimize",position:"bottom-right",action:"launch_optimize","id":"optimize",panels:[order_panel]});
         assignments_panel.add_action_button({start_hidden:true,text:"Cancel",position:"bottom-right",action:"reset_optimize","id":"reset_optimize",panels:[order_panel]});
@@ -5367,4 +6241,24 @@ function report_tour_delta(tid) {
         console.log(ufo_tours[tid].stops[i],ufo_stops[ufo_tours[tid].stops[i]].actual-ufo_stops[ufo_tours[tid].stops[i]].eta);
     }
 
+}
+
+function time_string(m,f) {
+    /*
+    Takes as input a number of minutes;
+    returns as output a formatted text string
+    */
+    var hours = Math.floor(parseFloat(m)/60.0);
+    var minutes = Math.floor(m-(hours*60));
+    var time_string_return = "";
+    if(hours>0) {
+        time_string_return = hours + " h"
+        if(minutes>0) {
+            time_string_return = time_string_return + " "
+        }
+    }
+    if(minutes>0) {
+        time_string_return = time_string_return + minutes + " m"
+    }
+    return(time_string_return);
 }

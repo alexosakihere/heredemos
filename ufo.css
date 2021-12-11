@@ -1972,3 +1972,17 @@ END PHONE CSS STYLES
 .marker_icon_stop {
     box-shadow: 1px 1px 3px rgba(149, 151, 156, .9);
 }
+
+.here_logo_ufo {
+	background-image: url("./images/Here_logo_LIGHT_GREY.png");
+	background-size: 100%;
+	display: block;
+	width: 50px;
+	height: 50px;
+	position: absolute;
+	right: 20px;
+	margin-top: 75px;
+	bottom: 10px;
+	z-index: 250;
+	float: left;
+}

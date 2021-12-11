@@ -340,7 +340,7 @@
     width:38px;
     height:40px;
     position:absolute;
-    left: 4px;
+    left: 2px;
     background: var(--herewhite);
 }
 .ufo_smallpane_icon {
@@ -457,6 +457,14 @@
     font-size: 10pt;
     z-index: 64;
     background: linear-gradient(to left,#48DAd0,#A4C3FF);
+}
+.ufo_action_button .action_plus {
+    font-size: 30pt;
+    font-family: FiraGO;
+    font-weight: 100;
+    position: absolute;
+    top: 0px;
+    left:15px;
 }
 
 /* Option panel sits above the other panels in the middle of the screen */
@@ -1484,8 +1492,17 @@ END PHONE CSS STYLES
     overflow:scroll;
 }
 
-.ufo_large_panel_title {
+.ufo_large_panel_report_title {
     font-size: 36pt;
+    font-weight: bold;
+    font-family: FiraGO;
+    position: absolute;
+    left: 60px;
+    top: 80px;
+}
+
+.ufo_large_panel_title {
+    font-size: 28pt;
     font-weight: bold;
     font-family: FiraGO;
     position: absolute;
@@ -1848,7 +1865,7 @@ END PHONE CSS STYLES
 }
 
 .ufo_driver_table {
-    width: 100%;
+    width: calc(100% + 80px);
     border-width: 0px;
     position: relative;
     left: -80px;

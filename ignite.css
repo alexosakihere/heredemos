@@ -9,18 +9,18 @@
 }
 @font-face{
     font-family:FiraGO;
-    src:url(fonts/FiraGO-Regular.otf);
-	font-weight: normal;
+    src:url(./fonts/FiraGO/Roman/FiraGO-Light.woff) format("woff"),url(./fonts/FiraGO/Roman/FiraGO-Light.woff2) format("woff2");
+	font-weight: 100 300;
 }
 @font-face{
     font-family:FiraGO;
-    src:url(fonts/FiraGO-Bold.otf);
-	font-weight: bold;
+    src:url(./fonts/FiraGO/Roman/FiraGO-Regular.woff) format("woff"),url(./fonts/FiraGO/Roman/FiraGO-Regular.woff2) format("woff2");
+	font-weight: 300 600;
 }
 @font-face{
     font-family:FiraGO;
-    src:url(fonts/FiraGO-Book.otf);
-	font-weight: 100;
+    src:url(./fonts/FiraGO/Roman/FiraGO-Bold.woff) format("woff"),url(./fonts/FiraGO/Roman/FiraGO-Bold.woff2) format("woff2");
+	font-weight: 600 900;
 }
 @font-face{
     font-family:FiraSansLight;
@@ -50,7 +50,8 @@
 	--herered: #c41c33;
 	--herepalered: #d35566;
 	--herewhite: #ffffff;
-	--hereufogrey: #f3f3f4;
+	--hereufogrey_old: #f3f3f4;
+	--hereufogrey: #f9fafc;
 	--hereufomidgrey: #e6e8ed;
 	--herecornflower: #afd0ea;
 	--hereufoblue: #7DBAE4;
@@ -70,7 +71,9 @@
 	--heregraphblue: #4B7AD4;
 	--heregraphpurple: #6d60d2;
 	--hereufostopblue: #66A1D6;
-	
+	--dashboard-font-family:"FiraGO";
+	--dashboard-font-body-huge-bold: normal 500 1.6rem / 2rem var(--dashboard-font-family);
+	font-family: var(--dashboard-font-family);
 }
 
 body,html {

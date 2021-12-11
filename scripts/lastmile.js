@@ -4441,13 +4441,19 @@ function ufo_vehicle_panel(tab) {
         var headers = ["Name","Type","Cost per km","Cost per min","Fixed cost","Capacity","Max range (km)","Shift time (hr)"];
         var tab_left = $("<div />",{"class":"ufo_driver_table_tab_bg_active"});
         var tab_right = $("<div />",{"class":"ufo_driver_table_tab_bg_inactive"});
-        $(vptabbuffer).append($("<td />",{"attr":{"colspan":headers.length}}));
+        var tab_buffer_action = $("<td />",{"attr":{"colspan":headers.length}});
+        var tab_buffer_action_button = $("<div />",{"class":"ufo_action_button","html":"<span class='action_plus'>+</span> Add vehicle profile","css":{"width":"fit-content","padding-left":"40px","padding-right":"20px","position":"relative","float":"right"}});
+        $(tab_buffer_action).append(tab_buffer_action_button);
+        $(vptabbuffer).append(tab_buffer_action);
     }
     else {
         var headers = ["Profile","Depot","Number plate","Make","Model","Additional info","Status"];
         var tab_left = $("<div />",{"class":"ufo_driver_table_tab_bg_inactive"});
         var tab_right = $("<div />",{"class":"ufo_driver_table_tab_bg_active"});
-        $(vptabbuffer).append($("<td />",{"attr":{"colspan":headers.length}}));
+        var tab_buffer_action = $("<td />",{"attr":{"colspan":headers.length}});
+        var tab_buffer_action_button = $("<div />",{"class":"ufo_action_button","html":"<span class='action_plus'>+</span> Add vehicle","css":{"width":"fit-content","padding-left":"40px","padding-right":"20px","position":"relative","float":"right"}});
+        $(tab_buffer_action).append(tab_buffer_action_button);
+        $(vptabbuffer).append(tab_buffer_action);
     }
     $(tab_left).append($("<div />",{"text":"Vehicle profiles"}));
     $(tab_left).on("click",function() { ufo_vehicle_panel("profiles")});
@@ -4554,7 +4560,7 @@ function ufo_driver_panel() {
     $(".ufo_large_panel").remove();
     var dptitle = $("<div />",{"class":"ufo_large_panel_title"});
     var dpids = Object.keys(ufo_driver_defs);
-    $(dptitle).append("Drivers ("+dpids.length+")")
+    $(dptitle).append("Users ("+dpids.length+")")
     var dpcontainer = $("<div />",{"class":"ufo_large_panel"});
 
     var dptable = $("<table />",{"class":"ufo_driver_table"});
@@ -4654,7 +4660,7 @@ function ufo_driver_panel() {
 
 function ufo_report_panel(offset) {
     $(".map_zoom_in,.map_zoom_out,.map_data_selector").hide();
-    var dptitle = $("<div />",{"class":"ufo_large_panel_title"});
+    var dptitle = $("<div />",{"class":"ufo_large_panel_report_title"});
     $(dptitle).append("Daily reports");
     var dpcontainer = $("<div />",{"class":"ufo_large_panel"});
 

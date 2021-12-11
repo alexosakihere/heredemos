@@ -203,7 +203,7 @@ function date_normal(params) {
 	
 	*/
 	var standard_delta = 1;
-	var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+	var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 	
 	var offset;
 	if(params.index!=undefined) {
@@ -212,18 +212,55 @@ function date_normal(params) {
 	else {
 		if(params.unixtime!=undefined) {
 			var unix_delta = (canon_date.getTime()/1000|0) - params.unixtime;
-			offset = new Date(canon_date - (unix_delta*1000))
+			if(params.absolute!=undefined) {
+				if(params.absolute==true) {
+					offset = new Date(params.unixtime*1000.0);
+				}
+				else {
+					offset = new Date(canon_date - (unix_delta*1000))
+				}
+			}
+			else {
+				offset = new Date(canon_date - (unix_delta*1000))
+			}
 		}
 		else {
 			console.log("Error: A date normalization request was passed with neither an index nor a timestamp");
 		}
 	}
+	if(params.shortmonth==undefined) {
+		var shortmonth = true;
+	}
+	else {
+		var shortmonth =false;
+	}
+
+	if(params.dayonly==undefined) {
+		var dayonly = false;
+	}
+	else {
+		var dayonly = params.dayonly;
+	}
+
+	if(params.year==undefined) {
+		var showyear = false;
+	}
+	else {
+		var showyear = params.year;
+	}
 
 	var mon,day,min,hour,stime,ampm,minpad;
 	day = offset.getDate();
 	mon = months[offset.getMonth()];
+	if(shortmonth==true) {
+		mon = mon.substr(0,3);
+	}
 	hour = offset.getHours();
 	min = offset.getMinutes();
+
+	if(showyear==true) {
+		day = day +", "+offset.getFullYear();
+	}
 	if(hour>=12) {
 		hour = hour-12;
 		ampm = "PM";
@@ -237,7 +274,12 @@ function date_normal(params) {
 	
 	stime = hour + ":" + minpad + min + ampm;
 	
-	return mon + " " + day + " " + stime;
+	if(dayonly==true) {
+		return mon + " " + day;
+	}
+	else {
+		return mon + " " + day + " " + stime;
+	}
 }
 
 function date_string_from_index(t) {

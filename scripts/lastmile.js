@@ -5924,6 +5924,7 @@ function ufo_mode_switch(newmode) {
 
 function ufo_sidebar_icons() {
     //$("#icon_calendar_svg").children("path")[0].style.fill = "var(--heremidgrey)";
+    $("#ufo_sidebar").show();
     $("#icon_phone_svg").children("path")[0].style.fill = "var(--heremidgrey)";
     //$("#icon_vehicles_svg").children("path")[0].style.fill = "var(--heremidgrey)";
     //$("#icon_drivers_svg").children("path")[0].style.fill = "var(--heremidgrey)";
@@ -6267,4 +6268,371 @@ function time_string(m,f) {
         time_string_return = time_string_return + minutes + " m"
     }
     return(time_string_return);
+}
+
+/***
+ * 
+ * BEGIN STORY LOGIC
+ * 
+ */
+
+ function control_tower_demo(reset_demo) {
+    if(reset_demo!=undefined) {
+        controltower_demo_stage = -1;
+    }
+    if(controltower_demo_stage==-1) {
+        $(".map_zoom_in,.map_zoom_out,.map_data_selector").hide();
+        $("#ufo_time_control,#ufo_sidebar").hide();
+        controltower_demo_stage = 0;
+        controltower_demo_map = -1;
+    }
+    console.log(controltower_demo_stage);
+    var all_targets = [[[20,10,60,60],-1],[[39,1040,112,40],0],[[150,1040,140,40],100],[[290,1040,216,40],101],[[509,1040,158,40],102],[[665,1040,158,40],103],[[821,1040,201,40],104],[[1021,1040,158,40],105]];
+    var ct_maps = {
+        0:{
+           "topbar":[16,0,1856,72,"insight_topbar.png","insight_frame_noround"],
+           "leftbar":[0,0,16,1045,"insight_leftbar.png","insight_frame_noround"],
+           "rightbar":[1872,0,48,1045,"insight_rightbar.png","insight_frame_noround"],
+           "bottombar":[0,1044,1920,36,"insight_bottombar_0.png","insight_frame_noround"],
+           "navbar":[30,83,1827,130,"insight_navbar.png","insight_frame_round"],
+           "frame_0":[30,230,751,426,"insight_frame_0.png","insight_frame_round"],
+           "frame_1":[800,230,1057,424,"insight_frame_1.png","insight_frame_round"],
+           "frame_2":[30,674,751,353,"insight_frame_2.png","insight_frame_round"],
+           "frame_3":[800,674,522,352,"insight_frame_3.png","insight_frame_round"],
+           "frame_4":[1337,674,522,355,"insight_frame_4.png","insight_frame_round"],
+           "frame_cal":[181,169,455,422,-1,"insight_frame_float"],
+           "frame_trucks":[335,169,336,300,-1,"insight_frame_float"],
+           "frame_types":[720,169,266,300,-1,"insight_frame_float"],
+        },
+        1:{
+            "topbar":[16,0,1856,72,"insight_topbar.png","insight_frame_noround"],
+            "leftbar":[0,0,16,1045,"insight_leftbar.png","insight_frame_noround"],
+            "rightbar":[1872,0,48,1045,"insight_rightbar.png","insight_frame_noround"],
+            "bottombar":[0,1044,1920,36,"insight_bottombar_0.png","insight_frame_noround"],
+            "navbar":[30,83,1827,130,"insight_navbar.png","insight_frame_round"],
+            "frame_0":[16,213,1856,830,"insight_balance.png","insight_frame_noround"],
+         }
+    }
+    var ct_data = {
+        0:{
+            "frames":{
+                "frame_cal":[-1],
+                "frame_trucks":[-1],
+                "frame_types":[-1]
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[330,130,344,44],60],[[718,130,273,44],70],[[678,980,79,42],3]],
+            "bg":"#d1d1d1"
+        },
+        1:{
+            "frames":{
+                "frame_cal":["insight_calendar.png"],
+                "frame_trucks":[-1],
+                "frame_types":[-1]
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],0],[[262,530,44,44],2],[[678,980,79,42],3]],
+            "bg":"#d1d1d1"
+        },
+        2:{
+            "frames":{
+                "frame_cal":[-1],
+                "frame_trucks":[-1],
+                "frame_types":[-1],
+                "navbar":["insight_navbar_0.png"],
+                "frame_0":["insight_frame_0_0.png"],
+                "frame_2":["insight_frame_2.png"]
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[330,130,344,44],61],[[718,130,273,44],71],[[678,980,79,42],3],[[50,450,700,45],40]],
+            "bg":"#d1d1d1"
+        },
+        3:{
+            "frames":{
+                "frame_cal":[-1],
+                "frame_trucks":[-1],
+                "frame_types":[-1],
+                "navbar":["insight_navbar_0.png"],
+                "frame_0":["insight_frame_0_0.png"],
+                "frame_2":["insight_frame_2_0.png"]
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[596,980,79,42],2],[[50,450,700,45],40]],
+            "bg":"#d1d1d1"
+        },
+        40:{
+            "frames":{
+                "frame_0":["insight_frame_0_1.png"],
+                "frame_1":["insight_frame_1_1.png"],
+                "frame_2":["insight_frame_2_1.png"],
+                "frame_3":["insight_frame_3_1.png"],
+                "frame_4":["insight_frame_4_1.png"],
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[678,980,79,42],50],[[50,450,700,45],2],[[1528,980,79,42],40],[[1608,980,79,42],41],[[1685,980,79,42],42],[[1762,980,79,42],43]],
+            "bg":"#d1d1d1"
+        },
+        41:{
+            "frames":{
+                "frame_2":["insight_frame_2_1.png"],
+                "frame_4":["insight_frame_4_1_1.png"],
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[678,980,79,42],51],[[50,450,700,45],2],[[1528,980,79,42],40],[[1608,980,79,42],41],[[1685,980,79,42],42],[[1762,980,79,42],43]],
+            "bg":"#d1d1d1"
+        },
+        42:{
+            "frames":{
+                "frame_2":["insight_frame_2_1.png"],
+                "frame_4":["insight_frame_4_1_2.png"],
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[678,980,79,42],52],[[50,450,700,45],2],[[1528,980,79,42],40],[[1608,980,79,42],41],[[1685,980,79,42],42],[[1762,980,79,42],43]],
+            "bg":"#d1d1d1"
+        },
+        43:{
+            "frames":{
+                "frame_2":["insight_frame_2_1.png"],
+                "frame_4":["insight_frame_4_1_3.png"],
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[678,980,79,42],53],[[50,450,700,45],2],[[1528,980,79,42],40],[[1608,980,79,42],41],[[1685,980,79,42],42],[[1762,980,79,42],43]],
+            "bg":"#d1d1d1"
+        },
+        50:{
+            "frames":{
+                "frame_2":["insight_frame_2_1_0.png"],
+                "frame_4":["insight_frame_4_1.png"],
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[596,980,79,42],40],[[50,450,700,45],2],[[1528,980,79,42],50],[[1608,980,79,42],51],[[1685,980,79,42],52],[[1762,980,79,42],53]],
+            "bg":"#d1d1d1"
+        },
+        51:{
+            "frames":{
+                "frame_2":["insight_frame_2_1_0.png"],
+                "frame_4":["insight_frame_4_1_1.png"],
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[596,980,79,42],41],[[50,450,700,45],2],[[1528,980,79,42],50],[[1608,980,79,42],51],[[1685,980,79,42],52],[[1762,980,79,42],53]],
+            "bg":"#d1d1d1"
+        },
+        52:{
+            "frames":{
+                "frame_2":["insight_frame_2_1_0.png"],
+                "frame_4":["insight_frame_4_1_2.png"],
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[596,980,79,42],42],[[50,450,700,45],2],[[1528,980,79,42],50],[[1608,980,79,42],51],[[1685,980,79,42],52],[[1762,980,79,42],53]],
+            "bg":"#d1d1d1"
+        },
+        53:{
+            "frames":{
+                "frame_2":["insight_frame_2_1_0.png"],
+                "frame_4":["insight_frame_4_1_3.png"],
+            },
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[596,980,79,42],43],[[50,450,700,45],2],[[1528,980,79,42],50],[[1608,980,79,42],51],[[1685,980,79,42],52],[[1762,980,79,42],53]],
+            "bg":"#d1d1d1"
+        },
+        60:{
+            "frames":{"frame_trucks":["insight_frame_trucks.png"],"frame_types":[-1]},
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[330,130,344,44],0],[[718,130,273,44],70],[[678,980,79,42],3]],
+            "bg":"#d1d1d1"
+        },
+        61:{
+            "frames":{"frame_trucks":["insight_frame_trucks.png"],"frame_types":[-1]},
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[330,130,344,44],2],[[718,130,273,44],71],[[678,980,79,42],3]],
+            "bg":"#d1d1d1"
+        },
+        70:{
+            "frames":{"frame_types":["insight_frame_types.png"],"frame_trucks":[-1]},
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[330,130,344,44],60],[[718,130,273,44],0],[[718,160,273,300],80],[[678,980,79,42],3]],
+            "bg":"#d1d1d1"
+        },
+        71:{
+            "frames":{"frame_types":["insight_frame_types.png"],"frame_trucks":[-1]},
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[330,130,344,44],61],[[718,130,273,44],2],[[678,980,79,42],3]],
+            "bg":"#d1d1d1"
+        },
+        80:{
+            "frames":{"frame_types":["insight_frame_types_0.png"],"frame_trucks":[-1]},
+            "map":0,
+            "targets":[[[180,130,112,44],1],[[330,130,344,44],60],[[718,130,273,44],0],[[718,160,273,300],70],[[678,980,79,42],3]],
+            "bg":"#d1d1d1"
+        },
+        100:{
+            "frames":{
+                "bottombar":["insight_bottombar_1.png"],
+                "frame_0":["insight_balance.png"]
+            },
+            "map":1,
+            "targets":[],
+            "bg":"#E6E6E6"
+        },
+        101:{
+            "frames":{
+                "bottombar":["insight_bottombar_2.png"],
+                "frame_0":["insight_balancedevelopment.png"]
+            },
+            "map":1,
+            "targets":[],
+            "bg":"#E6E6E6"
+        },
+        102:{
+            "frames":{
+                "bottombar":["insight_bottombar_3.png"],
+                "frame_0":["insight_potentialdin.png"]
+            },
+            "map":1,
+            "targets":[],
+            "bg":"#E6E6E6"
+        },
+        103:{
+            "frames":{
+                "bottombar":["insight_bottombar_4.png"],
+                "frame_0":["insight_potentialiso.png"]
+            },
+            "map":1,
+            "targets":[],
+            "bg":"#E6E6E6"
+        },
+        104:{
+            "frames":{
+                "bottombar":["insight_bottombar_5.png"],
+                "frame_0":["insight_analysis.png"]
+            },
+            "map":1,
+            "targets":[],
+            "bg":"#E6E6E6"
+        },
+        105:{
+            "frames":{
+                "bottombar":["insight_bottombar_6.png"],
+                "frame_0":["insight_analysistime.png"]
+            },
+            "map":1,
+            "targets":[],
+            "bg":"#E6E6E6"
+        },
+        
+    }
+    if(ct_data[controltower_demo_stage]["map"]!=controltower_demo_map) {
+        // Case where the whole frame map needs to be rebuilt.
+        $(".ufo_large_panel").remove();
+        var scale_factor = $(window).width() / 1920;
+        var map_keys = Object.keys(ct_maps[ct_data[controltower_demo_stage]["map"]]);
+        var ct_div = $("<div />",{"class":"ufo_large_panel","id":"insight_panel","css":{"left":"0","background-color":ct_data[controltower_demo_stage]["bg"]}});
+        var ct_frame = $("<div />",{"class":"insight_demo_frame","id":"insight_demo_frame","css":{"transform":"scale("+scale_factor+")","transform-origin":"0 0"}});
+        for(var i=0;i<map_keys.length;i++) {
+            if(ct_data[controltower_demo_stage]["frames"][map_keys[i]]!=undefined) {
+                if(ct_data[controltower_demo_stage]["frames"][map_keys[i]].length>1) {
+                    var mk_obj = ct_data[controltower_demo_stage]["frames"][map_keys[i]];
+                }
+                else {
+                    var mk_obj = ct_maps[ct_data[controltower_demo_stage]["map"]][map_keys[i]];
+                    mk_obj[4] = ct_data[controltower_demo_stage]["frames"][map_keys[i]][0];
+                }
+                
+            }
+            else {
+                var mk_obj = ct_maps[ct_data[controltower_demo_stage]["map"]][map_keys[i]];
+            }
+            console.log(map_keys[i]);
+            var frame_obj = $("<div />",{"class":mk_obj[5],"id":"insight_"+map_keys[i],"css":{"left":mk_obj[0],"top":mk_obj[1],"width":mk_obj[2],"height":mk_obj[3],"background-image":"url('./insight/"+mk_obj[4]+"')"}});
+            if(mk_obj[4]!=-1){
+                $(frame_obj).css({"display":"block"});
+            }
+            else {
+                $(frame_obj).css({"display":"none"});
+            }
+            $(ct_frame).append(frame_obj);
+        }
+        controltower_demo_map = ct_data[controltower_demo_stage]["map"];
+        $(ct_div).append(ct_frame);
+        $("#main_container").append(ct_div);
+        controltower_demo_stage = ct_data[controltower_demo_stage]["map"];
+        $(ct_div).append(ct_frame);
+        $("#main_container").append(ct_div);
+    }
+    else {
+        var ct_div = $("#insight_panel");
+        var ct_frame = $("#insight_demo_frame");
+        var map_keys = Object.keys(ct_data[controltower_demo_stage]["frames"]);
+        for(var i=0;i<map_keys.length;i++) {
+            console.log(map_keys[i]);
+            var frame_obj = $("#insight_"+map_keys[i]);
+            if(ct_data[controltower_demo_stage]["frames"][map_keys[i]].length>1) {
+                // If only 1 argument is provided, it's JUST the background URL
+                var mk_obj = ct_data[controltower_demo_stage]["frames"][map_keys[i]];
+            }
+            else {
+                var mk_obj = ct_maps[ct_data[controltower_demo_stage]["map"]][map_keys[i]];
+                mk_obj[4] = ct_data[controltower_demo_stage]["frames"][map_keys[i]][0];
+            }
+            
+            $(frame_obj).css({"left":mk_obj[0],"top":mk_obj[1],"width":mk_obj[2],"height":mk_obj[3],"background-image":"url('./insight/"+mk_obj[4]+"')"});
+            console.log(mk_obj);
+            if(mk_obj[4]!=-1){
+                console.log("Showing object");
+                $(frame_obj).css({"display":"block"});
+            }
+            else {
+                $(frame_obj).css({"display":"none"});
+            }
+        }
+        $(ct_div).css({"background-color":ct_data[controltower_demo_stage].bg});
+    }
+    $(".insight_demo_action").remove();
+
+    
+    //$(ct_frame).css({"background-color":ct_data[controltower_demo_stage].bg,"background-image":"url('./insight/"+ct_data[controltower_demo_stage].image+"')"});
+    var ct_targets = ct_data[controltower_demo_stage].targets;
+    for(var i=0;i<all_targets.length;i++) {
+        var ct_action = $("<div />",{"class":"insight_demo_action"});
+        $(ct_action).css({"left":all_targets[i][0][0],"top":all_targets[i][0][1],"width":all_targets[i][0][2],"height":all_targets[i][0][3]});
+        $(ct_action).on("click",{arg1:all_targets[i][1]},function(e) {
+            if(e.data.arg1==-1) {
+                // Reset command is triggered. If we're already stage 0, close the entire demo.
+                if(controltower_demo_stage==0) {
+                    try {
+                        fleetmode = "plan";
+                        ufo_mode_switch("plan");
+                    }
+                    catch(err) {
+                        console.log(err);
+                        /*
+                        We catch this, but this should happen if we run the controltower demo from limited scope, i.e.
+                        from controltower.html, where there is no other logic to support the full LM demo.
+                        */
+                    }
+                    controltower_demo_stage = 0;
+                    controltower_demo_map = -1;
+                }
+                else {
+                    controltower_demo_stage = e.data.arg1;
+                    control_tower_demo();
+                }
+            }
+            else {
+                controltower_demo_stage = e.data.arg1;
+                control_tower_demo();
+            }
+            
+        });
+        $(ct_frame).append(ct_action);
+    }
+    for(var i=0;i<ct_targets.length;i++) {
+        var ct_action = $("<div />",{"class":"insight_demo_action"});
+        $(ct_action).css({"left":ct_targets[i][0][0],"top":ct_targets[i][0][1],"width":ct_targets[i][0][2],"height":ct_targets[i][0][3]});
+        $(ct_action).on("click",{arg1:ct_targets[i][1]},function(e) {
+            controltower_demo_stage = e.data.arg1;
+            control_tower_demo();
+        });
+        $(ct_frame).append(ct_action);
+    }
 }

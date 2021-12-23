@@ -146,6 +146,9 @@
 			}
 		};
 
+		var controltower_demo_stage = 0;
+		var controltower_demo_map = -1;
+
 		var msmap = {
 			"type":"container",
 			"type_plural":"containers",
@@ -275,13 +278,14 @@
 					  </svg>
 				</div>
 		</div>
+		
 		<div class="ufo_sidebar_icon_border_unselected" id="ufo_icon_newjobs_border" style="margin-top:84px;">
 				<div class="ufo_sidebar_icon" id="ufo_icon_newjobs" style="display:none;" onclick="ufo_set_new()">
 					
 					<svg
 						x="0px"
 						y="0px"
-						viewBox="-4 0 60 60"
+						viewBox="-18 0 70 60"
 						enable-background="new 0 0 48 48">
 						<g>
 						<path
@@ -293,6 +297,21 @@
 				   
 				</div>
 		</div>
+
+		
+		<div class="ufo_sidebar_icon_border_unselected" id="ufo_icon_drivers_border" style="bottom:80px; left:0px; position:absolute;">
+			
+			<div class="ufo_sidebar_icon" id="ufo_icon_control" onclick="control_tower_demo(true)">
+				<svg x="0px" y="0px" viewBox="-30 0 110 90" enable-background="new 0 0 48 48">
+					<g stroke-width="4" fill="#00afaa" stroke="#00afaa">
+						<path style="fill:none;stroke-miterlimit:10;stroke-linecap:'square';" d="M57 42v13.5m-7.5-10.5v10.5m-7.5-21v21m-7.5-15v15" />
+						<path style="fill:none;stroke:#0f1621;stroke-miterlimit:10;stroke-linecap:'square';" class="st1" d="M64.5 61.5h-57c-1.64 0-3-1.36-3-3v-45c0-1.64 1.36-3 3-3h57c1.64 0 3 1.36 3 3v45c0 1.64-1.36 3-3 3z m-15.75-50.25l-43.5 43.5m7.5-25.5l18-18m-25.5 27l22.5 22.5m19.5-46.5l19.5 19.5m-61.5-10.5l15 15" />
+					</g>
+				</svg>
+			</div>
+		</div>	
+					
+
 
 
 

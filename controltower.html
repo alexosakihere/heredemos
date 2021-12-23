@@ -1,0 +1,72 @@
+<!doctype html>
+<html manifest="ufo.manifest">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width minimum-scale=1.0 maximum-scale=1.0 initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>HERE IoT Demo</title>
+	<script src="./scripts/core.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="./ignite.css" />
+	<link rel="stylesheet" type="text/css" href="./ufo.css" />
+	<link rel="stylesheet" type="text/css" href="./jquery-ui.css" />
+	<script type="Text/JavaScript">
+		var controltower_demo_stage = 0;
+		var controltower_demo_map = -1;
+		var restricted_mode = "control_tower_demo('true')";
+		var scripts_remaining = 0;
+		var start_time;
+		var jsscripts = ["./scripts/jquery-3.2.1.min.js","./scripts/velocity.min.js","./scripts/velocity.ui.js","./scripts/lastmile.js","./scripts/jquery-ui.min.js","./scripts/jquery.ui.touch-punch.js"];
+		
+		var msmap = {
+			"type":"container",
+			"type_plural":"containers",
+			"class":"product",
+			"class_plural":"products",
+			"uid":"uid",
+			"gen":"container",
+			"gen_plural":"containers",
+			"ship_type":"container ship"
+		}
+		var predefs = {
+			0:{
+				"position":[40.536394,-73.93538],
+				"zoom":9,
+				"time":1527176789,
+				"context":"delay",
+				"thing":"pharma4"
+			},
+			1:{
+				"position":[39.18618,-76.46671],
+				"zoom":10,
+				"time":1526991389,
+				"context":"delay",
+				"thing":"car2"
+			},
+			2:{
+				"position":[39.24363,-76.532346],
+				"zoom":15,
+				"time":1527070589,
+				"context":"delay",
+				"thing":"car4"
+			},
+			3:{
+				"position":[3.9657, -64.5676],
+				"zoom":3,
+				"time":1546732800,
+				"context":"logistics",
+				"thing":""
+			}
+		}
+	</script>
+</head>
+
+<body onload="setup()">
+	<div class="loading_screen" id="loading_screen"></div>
+	<div class="body_container">
+	<div class="main_container" id="main_container">
+		
+	</div>
+</body>
+</html>

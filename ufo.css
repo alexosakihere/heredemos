@@ -2003,3 +2003,71 @@ END PHONE CSS STYLES
 	z-index: 250;
 	float: left;
 }
+
+.insight_demo_frame {
+	width: 1920px;
+	height: 1080px;
+	overflow:hidden;
+	background-size: 100%;
+	background-repeat: no-repeat;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+.insight_demo_action {
+	position: absolute;
+	left: 0%;
+	top: 0%;
+	display: block;
+	width: 25%;
+	height: 5%;
+	z-index: 999;
+	border: .00em solid var(--hereaqua);
+    box-sizing:border-box;
+
+}
+
+.insight_frame_noround {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 0px;
+    height: 0px;
+    box-sizing: border-box;
+    display: block;
+    background-color: var(--herewhite);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    z-index: 2;
+}
+
+.insight_frame_round {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 0px;
+    height: 0px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    display: block;
+    background-color: var(--herewhite);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    z-index: 2;
+}
+
+.insight_frame_float {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 0px;
+    height: 0px;
+    box-sizing: border-box;
+    display: block;
+    background-color: var(--herewhite);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    z-index: 10;
+    box-shadow: 1px 1px 3px rgba(149, 151, 156, .9);
+}

@@ -164,6 +164,7 @@ function asset_tracking_demo() {
     }
     $("#alive_container").append(at_frame);
 }
+
 function story_do_next() {
     var fname = "story_do_next";
     if(active_story=="") {

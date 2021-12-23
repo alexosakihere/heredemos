@@ -649,64 +649,67 @@ function loadScripts(id){
 
 function setup() {
 	start_time = new Date();
+	var restricted;
 
-	
-	
-	if(getQueryVariable("center")!==false) {
-		var qvcenter = getQueryVariable("center").split(",");
-		if(Math.abs(qvcenter[0])<180 && Math.abs(qvcenter[1]<80)) {
-			center = [parseFloat(qvcenter[0]),parseFloat(qvcenter[1])];
-		}
-		else {
-			center = [0,0];
-		}
-		
+	try {
+		restricted = restricted_mode;
 	}
-	if(getQueryVariable("z")!==false) {
-		map_zlevel = parseInt(getQueryVariable("z"));
+	catch (err) {
+		console.log(err);
 	}
-	if(getQueryVariable("group")!==false) {
-		var group = getQueryVariable("group");
-		limit_to_group = group;
-		if(group=="telco") {
-			use_trackers = ["watch1","watch2","watch3","watch4","watch5","watch6","watch7","watch8","watch9"];
+
+	if(restricted===undefined) {
+		if(getQueryVariable("center")!==false) {
+			var qvcenter = getQueryVariable("center").split(",");
+			if(Math.abs(qvcenter[0])<180 && Math.abs(qvcenter[1]<80)) {
+				center = [parseFloat(qvcenter[0]),parseFloat(qvcenter[1])];
+			}
+			else {
+				center = [0,0];
+			}
+			
 		}
-		else if(group=="logistics") {
-			use_trackers = ["shipment1","shipment2","shipment3","shipment4","shipment5"];
+		if(getQueryVariable("z")!==false) {
+			map_zlevel = parseInt(getQueryVariable("z"));
 		}
-		else if(group=="notelco") {
-			var telcotracker = ["watch1","watch2","watch3","watch4","watch5","watch6","watch7","watch8","watch9"];
-			var all_trackers = Object.keys(trackers);
-			console.log(all_trackers);
-			var add_tracker = true;
-			for(var i in all_trackers) {
-				add_tracker = true;
-				for(var j in telcotracker) {
-					if(telcotracker[j]==all_trackers[i]) {
-						add_tracker=false;
+		if(getQueryVariable("group")!==false) {
+			var group = getQueryVariable("group");
+			limit_to_group = group;
+			if(group=="telco") {
+				use_trackers = ["watch1","watch2","watch3","watch4","watch5","watch6","watch7","watch8","watch9"];
+			}
+			else if(group=="logistics") {
+				use_trackers = ["shipment1","shipment2","shipment3","shipment4","shipment5"];
+			}
+			else if(group=="notelco") {
+				var telcotracker = ["watch1","watch2","watch3","watch4","watch5","watch6","watch7","watch8","watch9"];
+				var all_trackers = Object.keys(trackers);
+				console.log(all_trackers);
+				var add_tracker = true;
+				for(var i in all_trackers) {
+					add_tracker = true;
+					for(var j in telcotracker) {
+						if(telcotracker[j]==all_trackers[i]) {
+							add_tracker=false;
+						}
 					}
-				}
-				if(add_tracker===true) {
-					use_trackers.push(all_trackers[i]);
+					if(add_tracker===true) {
+						use_trackers.push(all_trackers[i]);
+					}
 				}
 			}
 		}
-	}
-
-	if(getQueryVariable("context")!==false) {
-		current_map_context = getQueryVariable("context");
-	}
-	else {
-		// Switching this off as of 2019.07.16 so that it should use whatever is initialized in the HTML
-		//current_map_context = "logistics";
-	}
 	
-
+		if(getQueryVariable("context")!==false) {
+			current_map_context = getQueryVariable("context");
+		}
+		else {
+			// Switching this off as of 2019.07.16 so that it should use whatever is initialized in the HTML
+			//current_map_context = "logistics";
+		}
+	}
 	
 	scripts_remaining = jsscripts.length;
-
-	
-	
 	loadScripts();
 	
 	/*
@@ -718,6 +721,23 @@ function setup() {
 }
 
 function setup_finish() {
+
+	var restricted;
+
+	try {
+		restricted = restricted_mode;
+	}
+	catch(err) {
+		console.log(err);
+	}
+
+	if(restricted!=undefined) {
+		$("#loading_icon").hide();
+		$("#loading_screen").hide();
+		eval(restricted);
+		return;
+	}
+
 	if(getQueryVariable("debug")!==false) {
 		show_map_errors = true;
 		$("#console").show();

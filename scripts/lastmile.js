@@ -1,4 +1,4 @@
-var lmdemo = "0.3.46 // 2019.11.02 2100 // 897.365";
+var lmdemo = "0.5.34 // 2022.01.15 2100 // 897.365";
 var ufo_stops = [];
 var ufo_tours = [];
 var ufo_vehicles = [];
@@ -6277,6 +6277,9 @@ function time_string(m,f) {
  */
 
  function control_tower_demo(reset_demo) {
+    if(keybinds==false) {
+        control_tower_keybind_setup();
+    }
     if(reset_demo!=undefined) {
         controltower_demo_stage = -1;
     }
@@ -6634,5 +6637,37 @@ function time_string(m,f) {
             control_tower_demo();
         });
         $(ct_frame).append(ct_action);
+    }
+}
+
+function control_tower_keybind_setup() {
+    document.onkeydown = function(e) {
+        control_tower_keyhandler(e,"down");
+    }
+    document.onkeyup = function(e) {
+        control_tower_keyhandler(e,"up");
+    }
+}
+
+function control_tower_keyhandler(e,dir) {
+    var ecode = 0;
+    var ekey = "";
+    try {
+        ekey = e.key;
+        if(ekey=="Shift") {
+            ecode = 16;
+        }
+    }
+    catch(err) {
+        ecode = e.keyCode();
+    }
+    if(ecode==16) {
+        if(dir=="down") {
+            $(".insight_demo_action").css({"border-width":"0.1em"});
+
+        }
+        else {
+            $(".insight_demo_action").css({"border-width":"0.0em"});
+        }
     }
 }

@@ -867,7 +867,7 @@ function setup_finish() {
 		document.getElementById("tracker_layer").addEventListener("mouseup",function(event) { mouse_interaction(event); });
 	}
 	document.onkeydown = function(e) {
-		console.log(e.keyCode);
+		console.log(e);
 		var ltime,ltimeshift;
 		if(active_tracker!="") {
 			ltimeshift = parseInt(trackers[active_tracker].updateinterval);
